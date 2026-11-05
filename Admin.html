@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOKOTOP ADMIN</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body style="background:#0a2a5e">
+
+<div style="max-width:500px;margin:20px auto;background:#fff;padding:20px;border-radius:15px" id="loginBox">
+<h2>🔒 SOKOTOP ADMIN</h2>
+<p>Enter password to control TV Ads</p>
+<input type="password" id="adminPass" placeholder="Password">
+<button class="btn-post" onclick="checkPass()">Login</button>
+<p style="font-size:11px;color:#888;margin-top:10px">Default: sokotop2026 - Change later</p>
+</div>
+
+<div style="max-width:500px;margin:20px auto;background:#fff;padding:20px;border-radius:15px;display:none" id="adminPanel">
+<h2>📺 Control SokoTop TV</h2>
+<p style="font-size:13px">Business paid? Upload their ad here - it will autoplay for all users!</p>
+
+<input type="text" id="adTitle" placeholder="Title e.g. KFC Kitui Family 999 KSH">
+<input type="text" id="adWa" placeholder="WhatsApp e.g. 254712345678">
+<input type="number" id="adSeconds" value="10" placeholder="Seconds per ad">
+<label class="gallery-btn">📁 Pick Image/Video from Gallery (Admin)
+<input type="file" id="adFile" accept="image/*,video/*" hidden>
+</label>
+<div id="adPreview"></div>
+<button class="btn-post" onclick="uploadAd()">💰 POST PAID AD TO TV NOW →</button>
+
+<h3 style="margin-top:20px;font-size:14px">Current Ads Running:</h3>
+<div id="currentAdsList" style="font-size:13px"></div>
+<button style="margin-top:15px;background:red;color:#fff;border:none;padding:8px 15px;border-radius:10px" onclick="clearAllAds()">Clear All Ads</button>
+<br><br>
+<a href="index.html" style="color:#0a2a5e">← Go to User App</a>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
