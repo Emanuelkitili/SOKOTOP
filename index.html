@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOKOTOP</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header"><div class="logo">SOKOTOP</div><div>🔔</div></div>
+
+<!-- YOUR MONEY TV - AUTOPLAY, USERS CANNOT CONTROL -->
+<div class="tv-container" id="tvContainer">
+<div class="tv-label">📺 SOKOTOP TV - LIVE ADS • Admin Controlled</div>
+<div id="tvScreen"><p style="padding:30px;text-align:center;color:#aaa">Waiting for Admin to post first paid ad...</p></div>
+<div class="tv-dots" id="tvDots"></div>
+</div>
+
+<!-- USER FEED - Like Facebook -->
+<div class="feed">
+<div class="create-post">
+<textarea id="postText" placeholder="What's on your mind?"></textarea>
+<label class="gallery-btn">📁 Gallery - Image/Video
+<input type="file" id="postFile" accept="image/*,video/*" hidden>
+</label>
+<div id="postPreview"></div>
+<button class="btn-post" id="btnCreatePost">Post</button>
+</div>
+<div id="feedPosts"></div>
+</div>
+
+<div class="bottom-nav"><div class="active">🏠 Home</div><div>👥 Friends</div><div>➕ Post</div><div>💬 Chat</div><div>👤 Me</div></div>
+
+<script src="app.js"></script>
+</body>
+</html>
