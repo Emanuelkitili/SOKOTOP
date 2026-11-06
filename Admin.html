@@ -6,36 +6,73 @@
 <title>SOKOTOP ADMIN</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body style="background:#0a2a5e">
-
-<div style="max-width:500px;margin:20px auto;background:#fff;padding:20px;border-radius:15px" id="loginBox">
+<body class="admin-body">
+<div class="box" id="loginBox">
 <h2>🔒 SOKOTOP ADMIN</h2>
-<p>Enter password to control TV Ads</p>
 <input type="password" id="adminPass" placeholder="Password">
-<button class="btn-post" onclick="checkPass()">Login</button>
-<p style="font-size:11px;color:#888;margin-top:10px">Default: sokotop2026 - Change later</p>
+<button onclick="checkPass()">Login</button>
+<p class="hint">Default: sokotop2026</p>
 </div>
-
-<div style="max-width:500px;margin:20px auto;background:#fff;padding:20px;border-radius:15px;display:none" id="adminPanel">
-<h2>📺 Control SokoTop TV</h2>
-<p style="font-size:13px">Business paid? Upload their ad here - it will autoplay for all users!</p>
-
-<input type="text" id="adTitle" placeholder="Title e.g. KFC Kitui Family 999 KSH">
+<div class="box" id="adminPanel" style="display:none">
+<h2>📺 SOKOTOP TV - PLAY NOW</h2>
+<input type="text" id="adTitle" placeholder="Title e.g. Kitui Love Story">
 <input type="text" id="adWa" placeholder="WhatsApp e.g. 254712345678">
-<input type="number" id="adSeconds" value="10" placeholder="Seconds per ad">
-<label class="gallery-btn">📁 Pick Image/Video from Gallery (Admin)
-<input type="file" id="adFile" accept="image/*,video/*" hidden>
-</label>
-<div id="adPreview"></div>
-<button class="btn-post" onclick="uploadAd()">💰 POST PAID AD TO TV NOW →</button>
-
-<h3 style="margin-top:20px;font-size:14px">Current Ads Running:</h3>
-<div id="currentAdsList" style="font-size:13px"></div>
-<button style="margin-top:15px;background:red;color:#fff;border:none;padding:8px 15px;border-radius:10px" onclick="clearAllAds()">Clear All Ads</button>
-<br><br>
-<a href="index.html" style="color:#0a2a5e">← Go to User App</a>
+<div class="flex">
+<input type="number" id="adTime" value="2" class="time-input">
+<select id="adUnit" class="unit-select"><option value="1">Seconds</option><option value="60">Minutes</option><option value="3600">Hours</option></select>
 </div>
-
-<script src="admin.js"></script>
+<input type="number" id="adPrice" placeholder="How much paid? e.g. 5000">
+<label class="gallery-btn">📁 Pick Movie / Song / Image
+<input type="file" id="adFile" accept="image/*,video/*,audio/*" hidden>
+</label>
+<p id="fileInfo" style="font-size:12px;color:#1877f2"></p>
+<div id="adPreview"></div>
+<h3 class="section-title">📢 BREAKING - Down The Video</h3>
+<input type="text" id="tickerText" placeholder="Ni ya Diamond na inaitwa... / Goal! Arsenal 1-0">
+<button class="btn-green" onclick="updateTicker()">📢 SHOW BREAKING →</button>
+<button class="btn-dark" onclick="clearTicker()">❌ Remove Breaking</button>
+<p id="tickerStatus" style="font-size:12px;color:green"></p>
+<button onclick="uploadAd()">▶️ PLAY NOW →</button>
+<div id="currentAdsList" class="ads-list"></div>
+<button class="btn-danger" onclick="clearAllAds()">⏹️ STOP & DELETE</button>
+<hr>
+<h2>🔴 GO LIVE - TV OR SPORTS</h2>
+<p style="font-size:12px;color:#888">Same trick! Paste YouTube Live link, users see only SOKOTOP!</p>
+<label style="font-size:13px;font-weight:bold">Choose Type:</label>
+<select id="liveType" style="width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:8px">
+<option value="TV">📺 SOKOTOP TV - Citizen / News / Show</option>
+<option value="SPORTS">⚽ SOKOTOP SPORTS - Football / Games Live</option>
+</select>
+<input type="text" id="liveTitle" placeholder="E.g. Man United vs Arsenal / Citizen Live">
+<input type="text" id="liveLink" placeholder="Paste YouTube Live Link Here - Only You See It">
+<input type="number" id="livePrice" placeholder="How much paid?">
+<button class="btn-live" onclick="goLive()">🔴 GO LIVE NOW</button>
+<button class="btn-dark" onclick="stopLive()">⏹️ STOP LIVE</button>
+<video id="livePreview" autoplay muted playsinline style="display:none"></video>
+<hr>
+<h3>❤️ Likes: <span id="adminLikes">0</span> | 💬 Comments</h3>
+<div id="adminQuestions" class="questions-box"></div>
+<button class="btn-green" onclick="loadQuestions()">🔄 Refresh Comments</button>
+<br><br><a href="index.html">← Go to User App</a>
+</div>
+<script>
+let DB;
+function openDB(){ return new Promise((res,rej)=>{ let req=indexedDB.open('SOKOTOP_TEMP',1); req.onupgradeneeded=e=>{ let db=e.target.result; if(!db.objectStoreNames.contains('ads')) db.createObjectStore('ads',{keyPath:'id'}); }; req.onsuccess=e=>{ DB=e.target.result; res(DB); }; req.onerror=e=>rej(e); }); }
+function checkPass(){ var p=document.getElementById('adminPass').value; if(p==='sokotop2026'){ document.getElementById('loginBox').style.display='none'; document.getElementById('adminPanel').style.display='block'; loadList(); loadQuestions(); loadTickerStatus(); } else { alert('Wrong password!'); } }
+var tempFile=null, tempType='', tempPreviewUrl='';
+document.getElementById('adFile').addEventListener('change', function(){ var f=this.files[0]; if(!f) return; tempFile=f; tempType=f.type.startsWith('video')?'video':f.type.startsWith('audio')?'audio':'image'; document.getElementById('fileInfo').innerText='Selected: '+f.name; if(tempPreviewUrl) URL.revokeObjectURL(tempPreviewUrl); tempPreviewUrl=URL.createObjectURL(f); document.getElementById('adPreview').innerHTML = tempType==='video' ? '<video src="'+tempPreviewUrl+'" controls></video>' : tempType==='audio' ? '<audio src="'+tempPreviewUrl+'" controls style="width:100%"></audio>' : '<img src="'+tempPreviewUrl+'">'; });
+function formatTime(sec){ if(sec>=3600) return (sec/3600)+' Hours'; if(sec>=60) return (sec/60)+' Minutes'; return sec+' Seconds'; }
+function updateTicker(){ var t=document.getElementById('tickerText').value; if(!t){ alert('Write breaking first!'); return; } localStorage.setItem('sokotop_ticker', t); document.getElementById('tickerStatus').innerText='✅ Now showing: '+t; alert('✅ Breaking running down video!'); }
+function clearTicker(){ localStorage.removeItem('sokotop_ticker'); document.getElementById('tickerText').value=''; document.getElementById('tickerStatus').innerText='Removed'; }
+function loadTickerStatus(){ var t=localStorage.getItem('sokotop_ticker'); if(t) document.getElementById('tickerStatus').innerText='Currently: '+t; }
+async function uploadAd(){ var title=document.getElementById('adTitle').value; var wa=document.getElementById('adWa').value; var timeVal=parseInt(document.getElementById('adTime').value)||10; var unit=parseInt(document.getElementById('adUnit').value)||1; var sec=timeVal*unit; var price=document.getElementById('adPrice').value||'0'; if(!title||!tempFile){alert('Add title + file');return;} try{ await openDB(); let id=Date.now(); let endsAt=Date.now() + (sec*1000); let ad={id:id,title:title,wa:wa,seconds:sec,price:price,type:tempType,file:tempFile,endsAt:endsAt}; let tx=DB.transaction(['ads'],'readwrite'); tx.objectStore('ads').put(ad); tx.oncomplete=()=>{ let list=JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); list.push({id:id,title:title,wa:wa,seconds:sec,price:price,type:tempType,endsAt:endsAt}); localStorage.setItem('sokotop_ads_meta', JSON.stringify(list)); alert('✅ NOW PLAYING!'); document.getElementById('adTitle').value=''; document.getElementById('adPreview').innerHTML=''; tempFile=null; loadList(); setTimeout(()=>{ autoDelete(id); }, sec*1000); }; }catch(e){ alert(e.message); } }
+async function autoDelete(id){ await openDB(); DB.transaction(['ads'],'readwrite').objectStore('ads').delete(id); let list=JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); list=list.filter(a=>a.id!==id); localStorage.setItem('sokotop_ads_meta', JSON.stringify(list)); loadList(); }
+function loadList(){ var ads=JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); let now=Date.now(); ads=ads.filter(a=>a.endsAt>now); localStorage.setItem('sokotop_ads_meta', JSON.stringify(ads)); document.getElementById('currentAdsList').innerHTML = ads.map(a=>a.title+' - '+a.price+' KSH').join('<br>') || 'Nothing playing'; }
+async function clearAllAds(){ if(!confirm('Stop & Delete?')) return; await openDB(); DB.transaction(['ads'],'readwrite').objectStore('ads').clear(); localStorage.removeItem('sokotop_ads_meta'); loadList(); }
+function goLive(){ var title=document.getElementById('liveTitle').value || 'LIVE NOW'; var link=document.getElementById('liveLink').value; var price=document.getElementById('livePrice').value || '0'; var type=document.getElementById('liveType').value; localStorage.setItem('sokotop_live', JSON.stringify({title:title,link:link,price:price,type:type,time:Date.now()})); alert('🔴 YOU ARE LIVE! '+type+' - '+title+' - Users see only SOKOTOP!'); if(!link){ navigator.mediaDevices.getUserMedia({video:true,audio:true}).then(function(stream){ var v=document.getElementById('livePreview'); v.style.display='block'; v.srcObject=stream; }).catch(function(){ alert('Allow camera'); }); } }
+function stopLive(){ localStorage.removeItem('sokotop_live'); alert('Live Stopped'); location.reload(); }
+function loadQuestions(){ var comments=JSON.parse(localStorage.getItem('sokotop_live_comments')||'[]'); var likes=localStorage.getItem('sokotop_likes')||'0'; document.getElementById('adminLikes').innerText=likes; document.getElementById('adminQuestions').innerHTML = comments.map(c=>'<p><b>'+c.name+':</b> '+c.text+'</p>').join('') || 'No comments yet'; }
+setInterval(loadList, 1000);
+</script>
 </body>
 </html>
