@@ -1,21 +1,72 @@
+/* ========== SOKOTOP - ONE CSS FOR BOTH ========== */
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Arial;background:#f0f2f5;padding-bottom:70px}
+
+/* --- USER HEADER --- */
 .header{background:#0a2a5e;color:#fff;padding:12px 15px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:100}
 .logo{color:#00e676;font-weight:900;font-size:24px}
+
+/* --- TV --- */
 .tv-container{background:#000;margin:10px;border-radius:14px;overflow:hidden;position:sticky;top:50px;z-index:90;box-shadow:0 4px 15px rgba(0,0,0,0.4);border:2px solid #00e676}
-.tv-label{background:#00e676;color:#000;font-size:10px;font-weight:bold;padding:4px 10px}
-#tvScreen img, #tvScreen video{width:100%;max-height:280px;object-fit:cover;display:block}
+.tv-label{background:#00e676;color:#000;font-size:10px;font-weight:bold;padding:5px 10px;display:flex;justify-content:space-between}
+.tv-label.live{background:red;color:#fff}
+#tvScreen img,#tvScreen video{width:100%;max-height:300px;object-fit:cover;display:block}
 .tv-info{padding:10px;color:#fff}
 .tv-info h3{color:#00e676;font-size:15px}
-.tv-info button{background:#25D366;color:#fff;border:none;padding:8px 15px;border-radius:20px;margin-top:6px;font-weight:bold}
+.tv-info button{background:#25D366;color:#fff;border:none;padding:8px 15px;border-radius:20px;margin-top:6px;font-weight:bold;cursor:pointer}
 .tv-dots{text-align:center;padding:6px;background:#111}
 .dot{width:6px;height:6px;background:#555;border-radius:50%;display:inline-block;margin:2px}
 .dot.active{background:#00e676;width:14px}
-.create-post,.post-card,.admin-card{background:#fff;margin:10px;padding:12px;border-radius:12px}
+.waiting-msg{padding:30px;text-align:center;color:#aaa}
+.ad-meta{font-size:12px;color:#ccc}
+.live-link-box{padding:30px;text-align:center;color:#fff}
+.live-link-box a{background:red;color:#fff;padding:10px 20px;border-radius:20px;text-decoration:none;display:inline-block;margin-top:10px}
+.live-note{font-size:12px;color:#aaa;margin-top:10px}
+
+/* --- LIVE INTERACTION --- */
+.live-box{background:#fff;margin:10px;padding:12px;border-radius:12px}
+.live-top{display:flex;justify-content:space-between;align-items:center}
+.like-btn{background:#ffebee;border:none;padding:8px 15px;border-radius:20px;font-weight:bold;cursor:pointer}
+.watching{font-size:12px}
+.live-comments{max-height:180px;overflow-y:auto;margin:10px 0}
+.live-input-row{display:flex;gap:5px}
+.send-btn{background:#1877f2;color:#fff;border:none;padding:10px 18px;border-radius:20px;font-weight:bold}
+.comment-item{padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.empty-text{color:#888;font-size:12px}
+
+/* --- USER POSTS --- */
+.create-post,.post-card{background:#fff;margin:10px;padding:12px;border-radius:12px}
 textarea,input{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px}
 .gallery-btn{display:block;background:#e4e6eb;padding:10px;text-align:center;border-radius:8px;margin:6px 0;cursor:pointer;font-size:13px;font-weight:bold}
 .btn-post{background:#1877f2;color:#fff;border:none;padding:12px;width:100%;border-radius:20px;font-weight:bold;cursor:pointer;margin-top:5px}
-#postPreview img,#postPreview video,#adPreview img,#adPreview video{width:100%;border-radius:10px;margin-top:8px;max-height:300px}
+#postPreview img,#postPreview video{width:100%;border-radius:10px;margin-top:8px;max-height:300px}
 .post-card img,.post-card video{width:100%;border-radius:10px;margin-top:8px;max-height:400px}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px;border-top:1px solid #ddd}
-.bottom-nav div{font-size:11px;text-align:center}.active{color:#1877f2;font-weight:bold}
+.post-text{margin:8px 0}
+.post-time{color:#888}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px;border-top:1px solid #ddd;z-index:100}
+.bottom-nav div{font-size:11px;text-align:center}
+.active{color:#1877f2;font-weight:bold}
+
+/* --- ADMIN --- */
+body.admin-body{background:#0a2a5e;padding:10px}
+.box{max-width:520px;margin:20px auto;background:#fff;padding:20px;border-radius:15px}
+.box input,.box select,.box textarea{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:8px}
+.box button{background:#1877f2;color:#fff;border:none;padding:12px;width:100%;border-radius:20px;font-weight:bold;margin-top:8px;cursor:pointer}
+.box .gallery-btn{display:block;background:#e4e6eb;padding:12px;text-align:center;border-radius:8px;margin:6px 0;cursor:pointer;font-weight:bold}
+.box img,.box video{width:100%;border-radius:10px;margin-top:8px;max-height:300px}
+.flex{display:flex;gap:5px}
+.hint{font-size:11px;color:#888;margin-top:10px}
+.section-title{margin-top:10px}
+.label-bold{font-size:13px;font-weight:bold}
+.time-input{flex:2}
+.unit-select{flex:1}
+.small-note{font-size:11px;color:#888}
+.sub-title{margin-top:15px;font-size:14px}
+.ads-list{font-size:13px}
+.btn-danger{background:red}
+.btn-live{background:red}
+.btn-dark{background:#333}
+.btn-green{background:#00c853}
+.small-text{font-size:13px}
+.questions-box{background:#f0f2f5;padding:10px;border-radius:10px;font-size:13px;min-height:60px}
+.back-link{color:#0a2a5e}
