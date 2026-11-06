@@ -3,35 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOKOTOP</title>
+<title>SOKOTOP - Kitui's TV</title>
 <link rel="stylesheet" href="style.css">
+<style>
+.ticker-bar{background:red;color:#fff;padding:8px 0;overflow:hidden;white-space:nowrap;position:relative;z-index:5}
+.ticker-bar span{display:inline-block;padding-left:100%;animation:scroll 15s linear infinite;font-weight:bold;font-size:13px}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.ticker-label{background:#fff;color:red;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:8px}
+.stealth-wrap{position:relative;width:100%;height:300px;overflow:hidden;background:#000}
+.stealth-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;pointer-events:none}
+.stealth-top{position:absolute;top:0;left:0;right:0;height:48px;background:#000;display:flex;align-items:center;justify-content:space-between;padding:0 10px;z-index:10}
+.stealth-top b{color:#fff;font-size:14px}
+.stealth-live{background:red;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px}
+.stealth-bottom{position:absolute;bottom:0;left:0;right:0;height:45px;background:linear-gradient(transparent, rgba(0,0,0,0.95));display:flex;align-items:flex-end;padding:6px 10px;z-index:10;pointer-events:none}
+.stealth-bottom span{color:#fff;font-size:12px;font-weight:bold}
+.stealth-logo{position:absolute;bottom:8px;right:10px;background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;z-index:11}
+.stealth-cover-top{position:absolute;top:48px;left:0;right:0;height:35px;background:transparent;z-index:9}
+</style>
 </head>
 <body>
-
 <div class="header"><div class="logo">SOKOTOP</div><div>🔔</div></div>
-
-<!-- YOUR MONEY TV - AUTOPLAY, USERS CANNOT CONTROL -->
 <div class="tv-container" id="tvContainer">
-<div class="tv-label">📺 SOKOTOP TV - LIVE ADS • Admin Controlled</div>
-<div id="tvScreen"><p style="padding:30px;text-align:center;color:#aaa">Waiting for Admin to post first paid ad...</p></div>
+<div class="tv-label" id="tvLabel"><span>📺 SOKOTOP TV - LIVE ADS</span><span id="tvTimer"></span></div>
+<div id="tvScreen"><p class="waiting-msg">Waiting for Admin to play Movie / Song...</p></div>
+<div id="tickerArea"></div>
 <div class="tv-dots" id="tvDots"></div>
 </div>
-
-<!-- USER FEED - Like Facebook -->
-<div class="feed">
+<div class="live-box" id="liveInteract" style="display:none">
+<div class="live-top">
+<button class="like-btn" onclick="likeLive()">❤️ Like <span id="likeCount">0</span></button>
+<span class="watching">👁️ <span id="viewCount">1,245</span> Watching</span>
+</div>
+<div id="liveComments" class="live-comments"></div>
+<div class="live-input-row">
+<input type="text" id="liveCommentInput" placeholder="Ask - Ni ya nani hii? Goal!!!">
+<button class="send-btn" onclick="sendLiveComment()">Send</button>
+</div>
+</div>
 <div class="create-post">
-<textarea id="postText" placeholder="What's on your mind?"></textarea>
-<label class="gallery-btn">📁 Gallery - Image/Video
+<textarea id="postText" placeholder="What's on your mind? Kitui?"></textarea>
+<label class="gallery-btn">📁 Gallery - Image / Video
 <input type="file" id="postFile" accept="image/*,video/*" hidden>
 </label>
 <div id="postPreview"></div>
 <button class="btn-post" id="btnCreatePost">Post</button>
 </div>
 <div id="feedPosts"></div>
-</div>
-
 <div class="bottom-nav"><div class="active">🏠 Home</div><div>👥 Friends</div><div>➕ Post</div><div>💬 Chat</div><div>👤 Me</div></div>
-
-<script src="app.js"></script>
+<script>
+let ads=[]; let current=0, timeLeft=10, interval; let DB;
+function openDB(){ return new Promise((res,rej)=>{ let req=indexedDB.open('SOKOTOP_TEMP',1); req.onupgradeneeded=e=>{ let db=e.target.result; if(!db.objectStoreNames.contains('ads')) db.createObjectStore('ads',{keyPath:'id'}); }; req.onsuccess=e=>{ DB=e.target.result; res(DB); }; req.onerror=e=>rej(e); }); }
+function showTicker(){ let t=localStorage.getItem('sokotop_ticker'); if(t){ document.getElementById('tickerArea').innerHTML='<div class="ticker-bar"><span><b class="ticker-label">📢 BREAKING</b> '+t+' ••• '+t+' ••• </span></div>'; } else { document.getElementById('tickerArea').innerHTML=''; } }
+async function loadAds(){ try{ await openDB(); let meta=JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); let now=Date.now(); meta=meta.filter(m=>m.endsAt>now); localStorage.setItem('sokotop_ads_meta', JSON.stringify(meta)); ads=[]; for(let m of meta){ await new Promise((resolve)=>{ let req=DB.transaction(['ads'],'readonly').objectStore('ads').get(m.id); req.onsuccess=()=>{ if(req.result){ let url=URL.createObjectURL(req.result.file); let left=Math.floor((m.endsAt-now)/1000); ads.push({...m,url:url,seconds:left}); } resolve(); }; req.onerror=()=>resolve(); }); } }catch(e){ console.log(e); } }
+function formatTime(sec){ if(sec>=3600) return Math.floor(sec/3600)+'h '+Math.floor((sec%3600)/60)+'m'; if(sec>=60) return Math.floor(sec/60)+'m '+ (sec%60)+'s'; return sec+'s'; }
+function showTV(i){ if(ads.length===0) return; current=i; let ad=ads[i]; let media=''; if(ad.type==='video'){ media='<video src="'+ad.url+'" autoplay controls playsinline></video>'; } else if(ad.type==='audio'){ media='<div style="padding:20px;text-align:center;color:#fff"><h2>🎵 '+ad.title+'</h2><p>Now Playing - Watch Only</p><audio src="'+ad.url+'" autoplay controls style="width:100%;margin-top:10px"></audio></div>'; } else { media='<img src="'+ad.url+'">'; } document.getElementById('tvScreen').innerHTML = media + '<div class="tv-info"><h3>'+ad.title+'</h3><p class="ad-meta">Playing Now • Ends in '+formatTime(ad.seconds)+' • Watch Only</p><button onclick="window.open(\'https://wa.me/'+ad.wa+'\')">💬 WhatsApp Order</button></div>'; let dots=''; ads.forEach((_,idx)=>dots+='<span class="dot '+(idx===i?'active':'')+'"></span>'); document.getElementById('tvDots').innerHTML=dots; timeLeft=ad.seconds; document.getElementById('tvLabel').className='tv-label'; document.getElementById('tvLabel').innerHTML='<span>📺 SOKOTOP TV - NOW PLAYING</span><span id="tvTimer"></span>'; showTicker(); }
+function startTV(){ if(ads.length===0) return; showTV(0); clearInterval(interval); interval=setInterval(()=>{ timeLeft--; let t=document.getElementById('tvTimer'); if(t) t.innerText='⏱️ Ends in '+formatTime(timeLeft); if(timeLeft<=0){ location.reload(); } },1000); }
+function getYTId(link){ if(!link) return ''; link=link.trim(); if(link.includes('v=')) return link.split('v=')[1].split('&')[0].split('?')[0]; if(link.includes('youtu.be/')) return link.split('youtu.be/')[1].split('?')[0].split('&')[0]; if(link.includes('/live/')) return link.split('/live/')[1].split('?')[0].split('&')[0]; if(link.includes('/embed/')) return link.split('/embed/')[1].split('?')[0].split('&')[0]; if(link.includes('/shorts/')) return link.split('/shorts/')[1].split('?')[0]; return link.split('/').pop().split('?')[0]; }
+function checkLive(){ let live = JSON.parse(localStorage.getItem('sokotop_live')||'null'); if(live){ let isSports = live.type==='SPORTS'; let label = isSports ? '⚽ SOKOTOP SPORTS • ' : '📺 SOKOTOP TV • '; let brand = isSports ? 'SOKOTOP SPORTS' : 'SOKOTOP TV'; let sub = isSports ? 'SOKOTOP Sports Exclusive Live • Watch Only Here' : 'SOKOTOP Exclusive Live • Watch Only Here'; document.getElementById('tvLabel').className='tv-label live'; document.getElementById('tvLabel').innerHTML='<span>🔴 '+label+live.title+'</span><span>● LIVE</span>'; if(live.link){ let id=getYTId(live.link); document.getElementById('tvScreen').innerHTML='<div class="stealth-wrap"><div class="stealth-top"><b>'+brand+'</b><span class="stealth-live">🔴 LIVE</span></div><iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="stealth-bottom"><span>'+live.title+' - SOKOTOP Exclusive</span></div><div class="stealth-logo">SOKOTOP</div></div><div class="tv-info"><h3>'+live.title+'</h3><p class="ad-meta">'+sub+'</p></div>'; } else { document.getElementById('tvScreen').innerHTML='<div class="live-link-box"><h2>🔴 LIVE</h2><p>'+live.title+'</p></div>'; } document.getElementById('liveInteract').style.display='block'; showTicker(); return true; } else { document.getElementById('liveInteract').style.display='none'; return false; } }
+(async function init(){ await loadAds(); if(!checkLive()) startTV(); showTicker(); })();
+setInterval(()=>{ showTicker(); let l=JSON.parse(localStorage.getItem('sokotop_live')||'null'); if(l && document.getElementById('liveInteract').style.display==='none'){ location.reload(); } if(!l && document.getElementById('liveInteract').style.display==='block'){ location.reload(); } },3000);
+let likes = parseInt(localStorage.getItem('sokotop_likes')||'0'); let comments = JSON.parse(localStorage.getItem('sokotop_live_comments')||'[]');
+function likeLive(){ likes++; localStorage.setItem('sokotop_likes', likes); document.getElementById('likeCount').innerText=likes; }
+function sendLiveComment(){ let text=document.getElementById('liveCommentInput').value; if(!text) return; comments.push({name:'Kitui Fan', text:text}); localStorage.setItem('sokotop_live_comments', JSON.stringify(comments)); document.getElementById('liveCommentInput').value=''; showComments(); }
+function showComments(){ document.getElementById('likeCount').innerText=likes; document.getElementById('liveComments').innerHTML = comments.slice(-20).map(c=>'<div class="comment-item"><b>'+c.name+':</b> '+c.text+'</div>').join('') || '<p class="empty-text">Be first to comment - Goal!!!</p>'; }
+showComments();
+document.getElementById('postFile').addEventListener('change', function(){ let file=this.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=e=>{ document.getElementById('postPreview').innerHTML = file.type.startsWith('video') ? '<video src="'+e.target.result+'" controls></video>' : '<img src="'+e.target.result+'">'; document.getElementById('postPreview').dataset.url=e.target.result; }; reader.readAsDataURL(file); });
+document.getElementById('btnCreatePost').onclick=()=>{ let text=document.getElementById('postText').value; let url=document.getElementById('postPreview').dataset.url; if(!text && !url){alert('Add something');return;} let media=url?(url.startsWith('data:video')?'<video src="'+url+'" controls></video>':'<img src="'+url+'">'):''; let html='<div class="post-card"><b>You • Kitui</b><p class="post-text">'+text+'</p>'+media+'<small class="post-time">Just now</small></div>'; document.getElementById('feedPosts').insertAdjacentHTML('afterbegin',html); document.getElementById('postText').value=''; document.getElementById('postPreview').innerHTML=''; document.getElementById('postPreview').dataset.url=''; };
+</script>
 </body>
 </html>
