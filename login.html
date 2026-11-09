@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOKOTOP - Login</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#1877f2;font-family:Arial;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.box{background:#fff;width:100%;max-width:380px;border-radius:16px;padding:22px;text-align:center}
+.box h1{font-size:36px;color:#1877f2;margin:0}
+.box p{color:#666;font-size:14px}
+.box input{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:10px}
+.box button{width:100%;padding:12px;background:#1877f2;color:#fff;border:0;border-radius:10px;font-weight:bold;margin-top:8px;cursor:pointer}
+.fb-btn{background:#1877f2!important;font-size:16px;padding:14px!important}
+.divider{display:flex;align-items:center;gap:10px;color:#888;font-size:12px;margin:16px 0}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:#ddd}
+.switch{font-size:13px;color:#1877f2;margin-top:12px;cursor:pointer}
+.note{font-size:11px;color:#888;background:#f0f2f5;padding:8px;border-radius:8px;margin-top:10px}
+.check-row{display:flex;align-items:center;gap:8px;font-size:13px;text-align:left;margin:8px 0}
+.check-row input{width:auto;margin:0}
+</style>
+</head>
+<body>
+<div class="box" id="loginBox">
+<h1>SOKOTOP</h1><p>Kitui's TV + Social</p>
+<p id="welcomeBack" style="display:none;background:#e8f5e9;padding:10px;border-radius:10px;color:#2e7d32;font-weight:bold"></p>
+<button class="fb-btn" onclick="loginWithFacebook()">📘 Continue with Facebook</button>
+<p style="font-size:12px;color:#666">Have Facebook? Tap above - No new password!</p>
+<div class="divider"><span>OR LOGIN WITH SOKOTOP</span></div>
+<input type="text" id="loginName" placeholder="Username e.g. kevin_kitui">
+<input type="password" id="loginPass" placeholder="Password">
+<div class="check-row"><input type="checkbox" id="keepLogged" checked> <label for="keepLogged">✅ Keep me logged in (Like Facebook - Don't ask me again on this phone)</label></div>
+<button onclick="doLogin()">Login to SOKOTOP</button>
+<p class="switch" onclick="forgotPass()">🔑 Forgot Password?</p>
+<p class="switch" onclick="showSignup()">No account? Create Account →</p>
+<div class="note">✅ Like Facebook: Login ONCE on this phone → You stay logged in forever. Close app, open tomorrow, you are still inside! Only if you tap LOGOUT or use a NEW phone will it ask password again.</div>
+</div>
+<div class="box" id="signupBox" style="display:none">
+<h1>Create Account</h1><p>Join Kitui's TV</p>
+<input type="text" id="suName" placeholder="Full Name">
+<input type="text" id="suUser" placeholder="Username">
+<input type="text" id="suPhone" placeholder="Phone e.g. 0712345678">
+<input type="password" id="suPass" placeholder="Create Password">
+<div class="check-row"><input type="checkbox" checked disabled> <label>✅ Keep me logged in on this phone</label></div>
+<button onclick="doSignup()">Create My Account</button>
+<button onclick="loginWithFacebook()" style="background:#1877f2">📘 Or Use Facebook - Faster!</button>
+<p class="switch" onclick="showLogin()">Already have account? Login →</p>
+</div>
+<div class="box" id="forgotBox" style="display:none">
+<h1>Reset Password</h1><p>For SOKOTOP accounts only. Facebook users - Just login with Facebook again!</p>
+<input type="text" id="fpUser" placeholder="Username">
+<input type="text" id="fpPhone" placeholder="Phone">
+<input type="password" id="fpNew" placeholder="New Password">
+<button onclick="doReset()">Reset My Password</button>
+<p class="switch" onclick="showLogin()">Back to Login →</p>
+</div>
+<script>
+// ===== STAY LOGGED IN LIKE FACEBOOK =====
+// If user already logged in on THIS phone, DON'T show login at all - Go straight to Home!
+let savedSession = localStorage.getItem('sokotop_current');
+if(savedSession){
+  try{
+    let u = JSON.parse(savedSession);
+    if(u && u.user){
+      // Show quick welcome then go in - Like Facebook opening
+      document.addEventListener('DOMContentLoaded', ()=>{
+        let w = document.getElementById('welcomeBack');
+        if(w){ w.style.display='block'; w.innerText='Welcome back '+u.name+'! Opening SOKOTOP...'; }
+      });
+      setTimeout(()=>{ window.location.href='index.html'; }, 500);
+    }
+  }catch(e){}
+}
+window.fbAsyncInit = function(){ FB.init({ appId: 'YOUR_FACEBOOK_APP_ID', cookie: true, xfbml: true, version: 'v19.0' }); };
+(function(d,s,id){ var js,fjs=d.getElementsByTagName(s)[0]; if(d.getElementById(id)) return; js=d.createElement(s); js.id=id; js.src="https://connect.facebook.net/en_US/sdk.js"; fjs.parentNode.insertBefore(js,fjs); }(document,'script','facebook-jssdk'));
+function loginWithFacebook(){
+  if(typeof FB !== 'undefined' && 'YOUR_FACEBOOK_APP_ID' !== 'YOUR_FACEBOOK_APP_ID'){
+    FB.login(function(res){ if(res.authResponse){ fetchFBProfile(); } }, {scope:'public_profile,email'});
+    return;
+  }
+  let savedFB = localStorage.getItem('sokotop_fb_user');
+  if(savedFB){ let fbUser = JSON.parse(savedFB); enterWithFacebook(fbUser.name, fbUser.pic, fbUser.fbId); return; }
+  let fbName = prompt('DEMO Facebook Login\nEnter your Facebook Name:');
+  if(!fbName) return;
+  let fbPic = prompt('Paste Facebook Photo link (optional):') || '';
+  let fbId = 'fb_' + fbName.toLowerCase().replace(/[^a-z0-9]/g,'_');
+  localStorage.setItem('sokotop_fb_user', JSON.stringify({name:fbName, pic:fbPic, fbId:fbId}));
+  enterWithFacebook(fbName, fbPic, fbId);
+}
+function fetchFBProfile(){ FB.api('/me', {fields:'name,picture.type(large),email'}, function(res){ let pic = res.picture && res.picture.data ? res.picture.data.url : ''; localStorage.setItem('sokotop_fb_user', JSON.stringify({name:res.name, pic:pic, fbId:'fb_'+res.id})); enterWithFacebook(res.name, pic, 'fb_'+res.id); }); }
+function enterWithFacebook(name, pic, fbId){
+  let users = getUsers();
+  let found = users.find(u=>u.user===fbId);
+  if(!found){ found = {name:name, user:fbId, phone:'', pass:'FACEBOOK_LOGIN', pic:pic, friends:[], blocked:[], saved:[], loginType:'facebook', fbId:fbId, created:Date.now()}; users.push(found); localStorage.setItem('sokotop_users', JSON.stringify(users)); }
+  else { found.name=name; if(pic) found.pic=pic; users = users.map(u=>u.user===fbId?found:u); localStorage.setItem('sokotop_users', JSON.stringify(users)); }
+  // SAVE SESSION FOREVER - Like Facebook
+  localStorage.setItem('sokotop_current', JSON.stringify(found));
+  localStorage.setItem('sokotop_keep_logged', 'yes');
+  window.location.href='index.html';
+}
+function showSignup(){document.getElementById('loginBox').style.display='none';document.getElementById('forgotBox').style.display='none';document.getElementById('signupBox').style.display='block';}
+function showLogin(){document.getElementById('signupBox').style.display='none';document.getElementById('forgotBox').style.display='none';document.getElementById('loginBox').style.display='block';}
+function forgotPass(){document.getElementById('loginBox').style.display='none';document.getElementById('signupBox').style.display='none';document.getElementById('forgotBox').style.display='block';}
+function getUsers(){return JSON.parse(localStorage.getItem('sokotop_users')||'[]');}
+function doSignup(){let name=document.getElementById('suName').value.trim();let user=document.getElementById('suUser').value.trim().toLowerCase();let phone=document.getElementById('suPhone').value.trim();let pass=document.getElementById('suPass').value;if(!name||!user||!pass){alert('Fill all');return;}let users=getUsers();if(users.find(u=>u.user===user)){alert('Username taken!');return;}let newUser={name:name,user:user,phone:phone,pass:pass,friends:[],blocked:[],saved:[],loginType:'sokotop',created:Date.now()};users.push(newUser);localStorage.setItem('sokotop_users',JSON.stringify(users));localStorage.setItem('sokotop_current',JSON.stringify(newUser));localStorage.setItem('sokotop_keep_logged','yes');window.location.href='index.html';}
+function doLogin(){let name=document.getElementById('loginName').value.trim().toLowerCase();let pass=document.getElementById('loginPass').value;let keep=document.getElementById('keepLogged').checked;let users=getUsers();let found=users.find(u=>(u.user===name||u.name.toLowerCase()===name)&&u.pass===pass);if(!found){alert('Wrong name/password.');return;}// KEEP LOGGED IN - Save session, never delete unless Logout
+localStorage.setItem('sokotop_current',JSON.stringify(found));if(keep){localStorage.setItem('sokotop_keep_logged','yes');}else{localStorage.setItem('sokotop_keep_logged','no');}window.location.href='index.html';}
+function doReset(){let user=document.getElementById('fpUser').value.trim().toLowerCase();let phone=document.getElementById('fpPhone').value.trim();let np=document.getElementById('fpNew').value;if(!user||!phone||!np){alert('Fill all');return;}let users=getUsers();let idx=users.findIndex(u=>u.user===user && u.phone===phone);if(idx===-1){alert('No match!');return;}users[idx].pass=np;localStorage.setItem('sokotop_users',JSON.stringify(users));alert('Password reset! Login now.');showLogin();}
+</script>
+</body>
+</html>
