@@ -6,10 +6,12 @@
 <title>SOKOTOP - Kitui's TV</title>
 <link rel="stylesheet" href="style.css">
 <style>
-.ticker-bar{background:#e60000;color:#fff;width:100%;overflow:hidden;white-space:nowrap;position:relative;z-index:20;display:flex;align-items:center;padding:0;height:44px;border-top:2px solid #fff;border-bottom:2px solid #fff}
-.ticker-label{background:#fff;color:#e60000;padding:6px 12px;font-size:17px;font-weight:900;flex-shrink:0;z-index:2;height:100%;display:flex;align-items:center;white-space:nowrap}
-.ticker-track{display:inline-block;white-space:nowrap;animation:scroll 18s linear infinite;font-weight:900;font-size:19px;letter-spacing:0.5px;padding-left:20px}
-@keyframes scroll{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+.ticker-bar{background:#e60000;color:#fff;width:100%;overflow:hidden;white-space:nowrap;position:relative;z-index:20;display:flex;align-items:stretch;height:48px;border-top:2px solid #fff;border-bottom:2px solid #fff}
+.ticker-label{background:#fff;color:#e60000;padding:0 14px;font-size:18px;font-weight:900;flex-shrink:0;z-index:3;display:flex;align-items:center;white-space:nowrap}
+.ticker-viewport{flex:1;overflow:hidden;position:relative;display:flex;align-items:center}
+.ticker-track{display:flex;white-space:nowrap;animation:scroll 20s linear infinite;font-weight:900;font-size:20px;letter-spacing:0.5px;will-change:transform}
+.ticker-track span{padding-right:60px;white-space:nowrap}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .stealth-wrap{position:relative;width:100%;height:300px;overflow:hidden;background:#000}
 .stealth-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;pointer-events:none}
 .stealth-top{position:absolute;top:0;left:0;right:0;height:48px;background:#000;display:flex;align-items:center;justify-content:space-between;padding:0 10px;z-index:10}
@@ -18,45 +20,244 @@
 .stealth-bottom{position:absolute;bottom:0;left:0;right:0;height:45px;background:linear-gradient(transparent, rgba(0,0,0,0.95));display:flex;align-items:flex-end;padding:6px 10px;z-index:10;pointer-events:none}
 .stealth-bottom span{color:#fff;font-size:12px;font-weight:bold}
 .stealth-logo{position:absolute;bottom:8px;right:10px;background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;z-index:11}
-.stealth-cover-top{position:absolute;top:48px;left:0;right:0;height:35px;background:transparent;z-index:9}
+.section{display:none}
+.section.active{display:block}
+.friend-card,.chat-card,.req-card,.poll-card,.reel-card{display:flex;align-items:center;gap:10px;background:#fff;padding:12px;border-radius:12px;margin:8px 0}
+.req-card,.poll-card,.reel-card{align-items:flex-start;flex-direction:column}
+.avatar{width:44px;height:44px;border-radius:50%;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.small-btn{background:#1877f2;color:#fff;border:0;padding:7px 12px;border-radius:20px;font-size:12px}
+.small-btn.red{background:#e60000}
+.small-btn.dark{background:#333}
+.small-btn.gray{background:#eee;color:#333}
+.small-btn.green{background:#25D366}
+.small-btn.orange{background:#ff6b00}
+.small-btn.purple{background:#8e44ad}
+.profile-head{background:#1877f2;color:#fff;padding:20px;text-align:center;border-radius:0 0 20px 20px}
+.profile-head .big-avatar{width:90px;height:90px;border-radius:50%;background:#fff;color:#1877f2;font-size:36px;display:flex;align-items:center;justify-content:center;margin:0 auto;overflow:hidden;border:3px solid #fff}
+.profile-head .big-avatar img{width:100%;height:100%;object-fit:cover}
+.chat-box{background:#fff;border-radius:12px;padding:10px;margin:8px 0;min-height:200px;max-height:300px;overflow-y:auto}
+.msg{padding:8px 12px;border-radius:12px;margin:6px 0;max-width:80%;font-size:14px}
+.msg.me{background:#1877f2;color:#fff;margin-left:auto}
+.msg.other{background:#eee}
+.edit-box{background:#f0f2f5;padding:12px;border-radius:12px;margin:10px 0}
+.edit-box input,.edit-box select,.edit-box textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+.post-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.comment-row{background:#f0f2f5;padding:8px 10px;border-radius:10px;margin:5px 0;font-size:13px}
+.cat-pill{background:#1877f2;color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:bold}
+.poll-opt{width:100%;text-align:left;padding:12px;border:1px solid #ddd;border-radius:10px;margin:5px 0;background:#fff;position:relative;overflow:hidden;cursor:pointer}
+.poll-opt .bar{position:absolute;left:0;top:0;bottom:0;background:#dbeafe;z-index:0}
+.poll-opt span{position:relative;z-index:1;font-weight:bold}
+.bottom-nav{display:flex!important}
+.bottom-nav div{flex:1;font-size:10px!important;padding:8px 1px!important}
 </style>
 </head>
 <body>
-<div class="header"><div class="logo">SOKOTOP</div><div>🔔</div></div>
+<div id="mainApp">
+<div class="header"><div class="logo">SOKOTOP</div><div>🔔 <span id="headerUser"></span></div></div>
+
+<div id="sec-home" class="section active">
 <div class="tv-container" id="tvContainer">
 <div class="tv-label" id="tvLabel"><span>📺 SOKOTOP TV - LIVE ADS</span><span id="tvTimer"></span></div>
 <div id="tvScreen"><p class="waiting-msg">Waiting for Admin to play Movie / Song...</p></div>
 <div id="tickerArea"></div>
 <div class="tv-dots" id="tvDots"></div>
 </div>
+<div style="display:flex;gap:8px;justify-content:center;padding:10px;background:#111;flex-wrap:wrap">
+<button onclick="toggleMute()" id="muteBtn" style="background:#fff;color:#000;border:0;padding:10px 14px;border-radius:20px;font-weight:bold;font-size:14px">🔊 Sound ON</button>
+<button onclick="toggleFullscreen()" style="background:#1877f2;color:#fff;border:0;padding:10px 14px;border-radius:20px;font-weight:bold;font-size:14px">⛶ Fullscreen</button>
+<button onclick="zoomOut()" style="background:#333;color:#fff;border:0;padding:10px 14px;border-radius:20px;font-weight:bold;font-size:16px">➖ Zoom Out</button>
+<button onclick="zoomIn()" style="background:#333;color:#fff;border:0;padding:10px 14px;border-radius:20px;font-weight:bold;font-size:16px">➕ Zoom In</button>
+<button onclick="resetZoom()" style="background:#e60000;color:#fff;border:0;padding:10px 14px;border-radius:20px;font-weight:bold;font-size:14px">Reset</button>
+</div>
 <div class="live-box" id="liveInteract" style="display:none">
-<div class="live-top">
-<button class="like-btn" onclick="likeLive()">❤️ Like <span id="likeCount">0</span></button>
-<span class="watching">👁️ <span id="viewCount">1,245</span> Watching</span>
-</div>
+<div class="live-top"><button class="like-btn" onclick="likeLive()">❤️ Like <span id="likeCount">0</span></button><span class="watching">👁️ <span id="viewCount">1,245</span> Watching</span></div>
 <div id="liveComments" class="live-comments"></div>
-<div class="live-input-row">
-<input type="text" id="liveCommentInput" placeholder="Ask - Ni ya nani hii? Goal!!!">
-<button class="send-btn" onclick="sendLiveComment()">Send</button>
-</div>
+<div class="live-input-row"><input type="text" id="liveCommentInput" placeholder="Ask - Ni ya nani hii? Goal!!!"><button class="send-btn" onclick="sendLiveComment()">Send</button></div>
 </div>
 <div class="create-post">
+<p>Posting as <b id="postAs"></b></p>
 <textarea id="postText" placeholder="What's on your mind? Kitui?"></textarea>
-<label class="gallery-btn">📁 Gallery - Image / Video
-<input type="file" id="postFile" accept="image/*,video/*" hidden>
-</label>
+<label class="gallery-btn">📁 Gallery - Image / Video<input type="file" id="postFile" accept="image/*,video/*" hidden></label>
 <div id="postPreview"></div>
 <button class="btn-post" id="btnCreatePost">Post</button>
 </div>
 <div id="feedPosts"></div>
-<div class="bottom-nav"><div class="active">🏠 Home</div><div>👥 Friends</div><div>➕ Post</div><div>💬 Chat</div><div>👤 Me</div></div>
+</div>
+
+<div id="sec-reels" class="section">
+<div style="padding:12px"><h2>🎬 Reels - Kitui TikTok</h2><p style="font-size:13px;color:#666">Watch short videos. Save what you love. Download to share on WhatsApp!</p>
+<div class="edit-box" style="background:#fff">
+<label>Upload Your Reel - 15 sec funny, dance, news!</label>
+<input type="text" id="reelTitle" placeholder="Title e.g. Funny Kitui Dance 😂">
+<input type="file" id="reelFile" accept="video/*">
+<div id="reelPreview"></div>
+<button class="btn-post" onclick="createReel()">🎬 Post My Reel</button>
+</div>
+<div id="reelList"></div>
+</div>
+</div>
+
+<div id="sec-polls" class="section">
+<div style="padding:12px"><h2>📊 Polls - Kitui Votes!</h2><p style="font-size:13px;color:#666">Vote! Argue! See who is winning in Kitui!</p>
+<div class="edit-box" style="background:#fff">
+<label>Create Poll:</label>
+<input type="text" id="pollQ" placeholder="Question e.g. Who is Best Artist in Kitui?">
+<input type="text" id="pollO1" placeholder="Option 1 e.g. Wilberforce Musyoka">
+<input type="text" id="pollO2" placeholder="Option 2 e.g. DJ Kalondu">
+<input type="text" id="pollO3" placeholder="Option 3 (optional) e.g. Ken wa Maria">
+<input type="text" id="pollO4" placeholder="Option 4 (optional)">
+<button class="btn-post" onclick="createPoll()" style="background:#8e44ad">📊 Create Poll</button>
+</div>
+<div id="pollList"></div>
+</div>
+</div>
+
+<div id="sec-requests" class="section">
+<div style="padding:12px">
+<h2>🙏 Requests - Kitui Help & Market</h2>
+<p style="font-size:13px;color:#666">New in Kitui? Need house, furniture, job? Ask here!</p>
+<div class="edit-box" style="background:#fff">
+<select id="reqCat"><option value="🏠 House">🏠 House / Room</option><option value="🛋️ Furniture">🛋️ Furniture</option><option value="💼 Job">💼 Job / Work</option><option value="🛒 Buy Something">🛒 Buy Something I Saw on TV</option><option value="🏍️ Boda / Transport">🏍️ Boda / Transport</option><option value="🍲 Food">🍲 Food</option><option value="❓ Other">❓ Other Help</option></select>
+<textarea id="reqText" placeholder="e.g. Am new in Kitui, can I get a house where I can rest? Near town, budget 5000..."></textarea>
+<input type="text" id="reqBudget" placeholder="Budget e.g. 5000 (optional)">
+<input type="text" id="reqPhone" placeholder="Your WhatsApp e.g. 0712345678">
+<button class="btn-post" onclick="createRequest()">🙏 Post My Request</button>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"><button class="small-btn" onclick="filterReq('ALL')">All</button><button class="small-btn orange" onclick="filterReq('🏠 House')">🏠 House</button><button class="small-btn" onclick="filterReq('🛋️ Furniture')">🛋️ Furniture</button><button class="small-btn" onclick="filterReq('🛒 Buy Something')">🛒 TV Items</button><button class="small-btn" onclick="filterReq('💼 Job')">💼 Job</button></div>
+<div id="reqList"></div>
+</div>
+</div>
+
+<div id="sec-friends" class="section">
+<div style="padding:12px"><h2>👥 Friends</h2>
+<input type="text" id="searchFriend" placeholder="Search friend..." oninput="renderFriends()" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px">
+<div id="friendsList"></div>
+<h3>🚫 Blocked</h3><div id="blockedList"></div>
+<h3>Suggested</h3><div id="suggestedList"></div>
+</div>
+</div>
+<div id="sec-post" class="section">
+<div style="padding:12px"><h2>➕ Create Post</h2>
+<div class="create-post"><p>Posting as <b class="postAs2"></b></p><textarea id="postText2" placeholder="Write something..."></textarea><button class="btn-post" onclick="quickPost()">Post to Home</button></div>
+<button class="btn-post" onclick="goSection('polls',document.querySelectorAll('.bottom-nav div')[3])" style="background:#8e44ad;margin-top:10px">📊 Or Create a Poll →</button>
+<button class="btn-post" onclick="goSection('reels',document.querySelectorAll('.bottom-nav div')[1])" style="background:#e60000;margin-top:8px">🎬 Or Post a Reel →</button>
+</div>
+</div>
+<div id="sec-chat" class="section">
+<div style="padding:12px"><h2>💬 Chat</h2>
+<div id="chatFriends"></div>
+<div id="chatWindow" style="display:none">
+<h3 id="chatWith">Chat</h3>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><button class="small-btn dark" onclick="deleteChat(activeChat)">🗑️ Delete Chat</button><button class="small-btn gray" onclick="unfriend(activeChat)">❌ Unfriend</button><button class="small-btn red" onclick="blockFriend(activeChat)">🚫 Block</button></div>
+<div class="chat-box" id="chatMessages"></div>
+<div class="live-input-row"><input type="text" id="chatInput" placeholder="Type message..."><button class="send-btn" onclick="sendChat()">Send</button></div>
+</div>
+</div>
+</div>
+<div id="sec-me" class="section">
+<div class="profile-head"><div class="big-avatar" id="meAvatar">K</div><h2 id="meName">User</h2><p id="meUser">@user • Kitui</p><p id="meStats">0 Posts • 0 Friends</p>
+<button onclick="toggleEditProfile()" style="background:#fff;color:#1877f2;border:0;padding:8px 16px;border-radius:20px;font-weight:bold;margin-top:8px">✏️ Edit Profile</button>
+</div>
+<div style="padding:12px">
+<div id="editProfileBox" class="edit-box" style="display:none">
+<h3>✏️ Edit My Profile</h3>
+<input type="file" id="profilePicInput" accept="image/*" onchange="previewProfilePic(event)">
+<div id="profilePicPreview"></div>
+<label>Full Name:</label><input type="text" id="editName">
+<label>Phone:</label><input type="text" id="editPhone">
+<label>Bio:</label><input type="text" id="editBio">
+<button class="btn-post" onclick="saveProfile()">💾 Save</button>
+<button class="btn-post" onclick="toggleEditProfile()" style="background:#888">Cancel</button>
+</div>
+<h3>🔖 My Saved Reels</h3><div id="mySaved"></div>
+<h3>My Posts</h3><div id="myPosts"></div>
+<h3>My Polls</h3><div id="myPolls"></div>
+<h3>My Requests</h3><div id="myReqs"></div>
+<button class="btn-post" onclick="doLogout()" style="background:#e60000">Logout</button>
+<button class="btn-post" onclick="deleteMyAccount()" style="background:#333;margin-top:8px">🗑️ Delete My Account</button>
+</div>
+</div>
+<div class="bottom-nav"><div class="active" onclick="goSection('home',this)">🏠 Home</div><div onclick="goSection('reels',this)">🎬 Reels</div><div onclick="goSection('requests',this)">🙏 Requests</div><div onclick="goSection('polls',this)">📊 Polls</div><div onclick="goSection('friends',this)">👥 Friends</div><div onclick="goSection('post',this)">➕ Post</div><div onclick="goSection('chat',this)">💬 Chat</div><div onclick="goSection('me',this)">👤 Me</div></div>
+</div>
 <script>
+if(!localStorage.getItem('sokotop_current')){ window.location.href='login.html'; }
+let currentUser = JSON.parse(localStorage.getItem('sokotop_current')||'null');
+if(!currentUser.blocked) currentUser.blocked=[];
+if(!currentUser.saved) currentUser.saved=[];
+function getUsers(){ return JSON.parse(localStorage.getItem('sokotop_users')||'[]'); }
+function saveUsers(u){ localStorage.setItem('sokotop_users', JSON.stringify(u)); }
+function syncUser(){ let users=getUsers(); users=users.map(u=>u.user===currentUser.user?currentUser:u); saveUsers(users); localStorage.setItem('sokotop_current', JSON.stringify(currentUser)); }
+function doLogout(){ localStorage.removeItem('sokotop_current'); window.location.href='login.html'; }
+function deleteMyAccount(){ if(!confirm('Delete account FOREVER?')) return; let users=getUsers().filter(u=>u.user!==currentUser.user); saveUsers(users); savePosts(getPosts().filter(p=>p.user!==currentUser.user)); saveRequests(getRequests().filter(r=>r.user!==currentUser.user)); savePolls(getPolls().filter(p=>p.user!==currentUser.user)); saveReels(getReels().filter(r=>r.user!==currentUser.user)); localStorage.removeItem('sokotop_current'); window.location.href='login.html'; }
+function startApp(){ currentUser=JSON.parse(localStorage.getItem('sokotop_current')||'null'); if(!currentUser){ window.location.href='login.html'; return; } if(!currentUser.blocked) currentUser.blocked=[]; if(!currentUser.saved) currentUser.saved=[]; if(!currentUser.friends) currentUser.friends=[]; document.getElementById('headerUser').innerText='👤 '+currentUser.name.split(' ')[0]; document.getElementById('postAs').innerText=currentUser.name; document.querySelectorAll('.postAs2').forEach(e=>e.innerText=currentUser.name); updateMeUI(); renderFeed(); renderFriends(); renderChatFriends(); renderMe(); renderRequests(); renderPolls(); renderReels(); }
+function updateMeUI(){ document.getElementById('meName').innerText=currentUser.name; document.getElementById('meUser').innerText='@'+currentUser.user+' • '+(currentUser.phone||'Kitui')+(currentUser.bio?' • '+currentUser.bio:''); let av=document.getElementById('meAvatar'); if(currentUser.pic){ av.innerHTML='<img src="'+currentUser.pic+'">'; } else { av.innerHTML=currentUser.name.charAt(0).toUpperCase(); } }
+startApp();
+function goSection(name,el){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById('sec-'+name).classList.add('active'); document.querySelectorAll('.bottom-nav div').forEach(d=>d.classList.remove('active')); el.classList.add('active'); if(name==='friends') renderFriends(); if(name==='chat') renderChatFriends(); if(name==='me') renderMe(); if(name==='requests') renderRequests(); if(name==='polls') renderPolls(); if(name==='reels') renderReels(); }
+// REELS + SAVE + DOWNLOAD
+function getReels(){ return JSON.parse(localStorage.getItem('sokotop_reels')||'[]'); }
+function saveReels(r){ localStorage.setItem('sokotop_reels', JSON.stringify(r)); }
+let reelData='';
+document.getElementById('reelFile').addEventListener('change', function(){ let f=this.files[0]; if(!f) return; let rd=new FileReader(); rd.onload=e=>{ reelData=e.target.result; document.getElementById('reelPreview').innerHTML='<video src="'+reelData+'" controls style="width:100%;border-radius:10px"></video>'; }; rd.readAsDataURL(f); });
+function createReel(){ let title=document.getElementById('reelTitle').value.trim(); if(!title||!reelData){ alert('Add Title + Video!'); return; } let reels=getReels(); reels.push({id:'re'+Date.now()+Math.random().toString(36).slice(2,6),name:currentUser.name,user:currentUser.user,title:title,video:reelData,likes:[],time:Date.now()}); saveReels(reels); document.getElementById('reelTitle').value=''; document.getElementById('reelPreview').innerHTML=''; reelData=''; renderReels(); renderMe(); alert('Reel posted! 🎬'); }
+function likeReel(id){ let reels=getReels(); let r=reels.find(x=>x.id===id); r.likes=r.likes||[]; if(r.likes.includes(currentUser.user)) r.likes=r.likes.filter(u=>u!==currentUser.user); else r.likes.push(currentUser.user); saveReels(reels); renderReels(); }
+function saveReel(id){ currentUser.saved=currentUser.saved||[]; if(currentUser.saved.includes(id)){ currentUser.saved=currentUser.saved.filter(x=>x!==id); alert('Removed from Saved!'); } else { currentUser.saved.push(id); alert('Saved! 🔖 Find it in Me → My Saved Reels'); } syncUser(); renderReels(); renderMe(); }
+function downloadReel(id){ let reels=getReels(); let r=reels.find(x=>x.id===id); if(!r) return; let a=document.createElement('a'); a.href=r.video; a.download='SOKOTOP-'+r.title.replace(/[^a-z0-9]/gi,'_')+'.mp4'; document.body.appendChild(a); a.click(); a.remove(); alert('Downloaded! 📲 Now share it on WhatsApp Status - Tell them it is from SOKOTOP!'); }
+function deleteReel(id){ if(!confirm('Delete this reel?')) return; saveReels(getReels().filter(x=>x.id!==id)); renderReels(); renderMe(); }
+function renderReels(){ let reels=getReels().filter(r=>!(currentUser.blocked||[]).includes(r.user)); let users=getUsers(); document.getElementById('reelList').innerHTML = reels.slice().reverse().map(r=>{ let u=users.find(x=>x.user===r.user)||{name:r.name}; let isMine=r.user===currentUser.user; let saved=(currentUser.saved||[]).includes(r.id); let liked=(r.likes||[]).includes(currentUser.user); return '<div class="reel-card"><div style="display:flex;gap:10px;align-items:center;width:100%">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+r.name+' • @'+r.user+'</b><br><small>'+new Date(r.time).toLocaleString()+'</small></div><span class="cat-pill">🎬 REEL</span></div><p><b>'+r.title+'</b></p><video src="'+r.video+'" controls style="width:100%;border-radius:12px;background:#000"></video><p style="font-size:13px">❤️ '+(r.likes||[]).length+' Likes</p><div class="post-actions"><button class="small-btn '+(liked?'red':'gray')+'" onclick="likeReel(\''+r.id+'\')">'+(liked?'❤️ Liked':'🤍 Like')+'</button><button class="small-btn '+(saved?'purple':'gray')+'" onclick="saveReel(\''+r.id+'\')">'+(saved?'🔖 Saved':'🔖 Save')+'</button><button class="small-btn green" onclick="downloadReel(\''+r.id+'\')">⬇️ Download</button><button class="small-btn green" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\'Watch this SOKOTOP Reel: \'+r.title+\' - Kitui TikTok!\'))">📲 Share WhatsApp</button>'+(isMine?'<button class="small-btn red" onclick="deleteReel(\''+r.id+'\')">🗑️ Delete</button>':'')+'</div></div>'; }).join('') || '<p style="text-align:center;color:#888">No Reels yet. Be first - Post funny Kitui video!</p>'; }
+// POLLS
+function getPolls(){ return JSON.parse(localStorage.getItem('sokotop_polls')||'[]'); }
+function savePolls(p){ localStorage.setItem('sokotop_polls', JSON.stringify(p)); }
+function createPoll(){ let q=document.getElementById('pollQ').value.trim(); let o1=document.getElementById('pollO1').value.trim(); let o2=document.getElementById('pollO2').value.trim(); let o3=document.getElementById('pollO3').value.trim(); let o4=document.getElementById('pollO4').value.trim(); if(!q||!o1||!o2){ alert('Need Question + At least 2 Options!'); return; } let opts=[o1,o2]; if(o3) opts.push(o3); if(o4) opts.push(o4); let polls=getPolls(); polls.push({id:'pl'+Date.now()+Math.random().toString(36).slice(2,6),name:currentUser.name,user:currentUser.user,q:q,opts:opts.map(t=>({text:t,votes:[]})),time:Date.now()}); savePolls(polls); document.getElementById('pollQ').value=''; document.getElementById('pollO1').value=''; document.getElementById('pollO2').value=''; document.getElementById('pollO3').value=''; document.getElementById('pollO4').value=''; renderPolls(); renderMe(); alert('Poll created! Let Kitui vote! 📊'); }
+function votePoll(pollId, optIdx){ let polls=getPolls(); let p=polls.find(x=>x.id===pollId); if(p.opts.some(o=>o.votes.includes(currentUser.user))){ alert('You already voted!'); return; } p.opts[optIdx].votes.push(currentUser.user); savePolls(polls); renderPolls(); }
+function deletePoll(id){ if(!confirm('Delete poll?')) return; savePolls(getPolls().filter(x=>x.id!==id)); renderPolls(); renderMe(); }
+function renderPolls(){ let polls=getPolls().filter(p=>!(currentUser.blocked||[]).includes(p.user)); let users=getUsers(); document.getElementById('pollList').innerHTML = polls.slice().reverse().map(p=>{ let u=users.find(x=>x.user===p.user)||{name:p.name}; let total=p.opts.reduce((s,o)=>s+o.votes.length,0); let voted=p.opts.some(o=>o.votes.includes(currentUser.user)); let isMine=p.user===currentUser.user; let winner=p.opts.reduce((a,b)=>a.votes.length>=b.votes.length?a:b); return '<div class="poll-card"><div style="display:flex;gap:10px;align-items:center;width:100%">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+p.name+'</b><br><small>'+new Date(p.time).toLocaleString()+'</small></div><span class="cat-pill" style="background:#8e44ad">📊 POLL</span></div><h3 style="margin:8px 0">'+p.q+'</h3>'+p.opts.map((o,i)=>{ let pct=total===0?0:Math.round(o.votes.length/total*100); return '<button class="poll-opt" onclick="votePoll(\''+p.id+'\','+i+')"><div class="bar" style="width:'+pct+'%"></div><span>'+o.text+' - '+o.votes.length+' votes ('+pct+'%) '+(o===winner&&total>0?'👑':'')+'</span></button>'; }).join('')+'<p style="font-size:13px;color:#666">🗳️ '+total+' Total Votes • '+(voted?'✅ You voted':'Tap an option to vote!')+'</p><div class="post-actions"><button class="small-btn purple" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\'📊 SOKOTOP Poll: \'+p.q+\' - Vote on SOKOTOP!\'))">📲 Share Poll</button>'+(isMine?'<button class="small-btn red" onclick="deletePoll(\''+p.id+'\')">🗑️ Delete</button>':'')+'</div></div>'; }).join('') || '<p style="text-align:center;color:#888">No polls yet. Create first poll - Who is Best in Kitui?</p>'; }
+// REQUESTS
+function getRequests(){ return JSON.parse(localStorage.getItem('sokotop_requests')||'[]'); }
+function saveRequests(r){ localStorage.setItem('sokotop_requests', JSON.stringify(r)); }
+let reqFilter='ALL';
+function filterReq(f){ reqFilter=f; renderRequests(); }
+function createRequest(){ let cat=document.getElementById('reqCat').value; let text=document.getElementById('reqText').value.trim(); let budget=document.getElementById('reqBudget').value.trim(); let phone=document.getElementById('reqPhone').value.trim()||currentUser.phone||''; if(!text){ alert('Write what you need!'); return; } let reqs=getRequests(); reqs.push({id:'r'+Date.now()+Math.random().toString(36).slice(2,6),name:currentUser.name,user:currentUser.user,cat:cat,text:text,budget:budget,phone:phone,replies:[],solved:false,time:Date.now()}); saveRequests(reqs); document.getElementById('reqText').value=''; document.getElementById('reqBudget').value=''; document.getElementById('reqPhone').value=''; renderRequests(); renderMe(); alert('Request posted! 🙏'); }
+function replyRequest(id){ let txt=prompt('Reply / Help:'); if(!txt) return; let reqs=getRequests(); let r=reqs.find(x=>x.id===id); r.replies=r.replies||[]; r.replies.push({name:currentUser.name,user:currentUser.user,text:txt}); saveRequests(reqs); renderRequests(); }
+function deleteRequest(id){ if(!confirm('Delete?')) return; saveRequests(getRequests().filter(x=>x.id!==id)); renderRequests(); renderMe(); }
+function solveRequest(id){ let reqs=getRequests(); let r=reqs.find(x=>x.id===id); r.solved=!r.solved; saveRequests(reqs); renderRequests(); renderMe(); }
+function renderRequests(){ let reqs=getRequests().filter(r=>!(currentUser.blocked||[]).includes(r.user)); if(reqFilter!=='ALL') reqs=reqs.filter(r=>r.cat===reqFilter); let users=getUsers(); document.getElementById('reqList').innerHTML = reqs.slice().reverse().map(r=>{ let u=users.find(x=>x.user===r.user)||{name:r.name}; let isMine=r.user===currentUser.user; return '<div class="req-card"><div style="display:flex;gap:10px;align-items:center;width:100%">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+r.name+' • @'+r.user+'</b><br><small>'+new Date(r.time).toLocaleString()+'</small></div><span class="cat-pill">'+r.cat+'</span></div><p style="margin:8px 0">'+r.text+'</p>'+(r.budget?'<p style="font-weight:bold;color:#ff6b00">💰 Budget: '+r.budget+'</p>':'')+(r.solved?'<p style="color:green;font-weight:bold">✅ SOLVED!</p>':'<p style="color:#e60000;font-size:12px">⏳ Waiting...</p>')+'<div>'+r.replies.map(c=>'<div class="comment-row"><b>'+c.name+':</b> '+c.text+'</div>').join('')+'</div><div class="post-actions"><button class="small-btn" onclick="replyRequest(\''+r.id+'\')">💬 I Can Help</button>'+(r.phone?'<button class="small-btn green" onclick="window.open(\'https://wa.me/254'+r.phone.replace(/^0/,'')+'?text=\'+encodeURIComponent(\'Hi, I saw your SOKOTOP request: \'+r.text))">📲 WhatsApp</button>':'')+(isMine?'<button class="small-btn orange" onclick="solveRequest(\''+r.id+'\')">✅ Solved</button><button class="small-btn red" onclick="deleteRequest(\''+r.id+'\')">🗑️ Delete</button>':'')+'</div></div>'; }).join('') || '<p style="text-align:center;color:#888">No requests yet.</p>'; }
+function getPosts(){ return JSON.parse(localStorage.getItem('sokotop_posts')||'[]'); }
+function savePosts(p){ localStorage.setItem('sokotop_posts', JSON.stringify(p)); }
+function getAvatarHTML(user){ if(user && user.pic){ return '<div class="avatar"><img src="'+user.pic+'"></div>'; } return '<div class="avatar">'+(user?user.name.charAt(0):'?')+'</div>'; }
+function renderFeed(){ let posts=getPosts().filter(p=>!(currentUser.blocked||[]).includes(p.user)); let users=getUsers(); document.getElementById('feedPosts').innerHTML = posts.slice().reverse().map(p=>{ let u=users.find(x=>x.user===p.user)||{name:p.name}; let isMine=p.user===currentUser.user; let likes=p.likes||[]; let liked=likes.includes(currentUser.user); let cmts=p.comments||[]; return '<div class="post-card"><div style="display:flex;gap:10px;align-items:center">'+getAvatarHTML(u)+'<div><b>'+p.name+' • @'+p.user+'</b><br><small>'+new Date(p.time).toLocaleString()+'</small></div></div><p class="post-text">'+p.text+'</p>'+(p.media||'')+'<p style="font-size:13px">❤️ '+likes.length+' • 💬 '+cmts.length+'</p><div class="post-actions"><button class="small-btn '+(liked?'red':'gray')+'" onclick="likePost(\''+p.id+'\')">'+(liked?'❤️ Liked':'🤍 Like')+'</button><button class="small-btn gray" onclick="commentPost(\''+p.id+'\')">💬 Comment</button><button class="small-btn green" onclick="sharePost(\''+p.id+'\')">📲 Share</button>'+(isMine?'<button class="small-btn gray" onclick="editPost(\''+p.id+'\')">✏️ Edit</button><button class="small-btn red" onclick="deletePost(\''+p.id+'\')">🗑️ Delete</button>':'<button class="small-btn dark" onclick="blockFriend(\''+p.user+'\')">🚫 Block</button>')+'</div><div>'+cmts.map(c=>'<div class="comment-row"><b>'+c.name+':</b> '+c.text+'</div>').join('')+'</div></div>'; }).join('') || '<p style="text-align:center;color:#888">No posts yet.</p>'; }
+function createPost(text, media){ if(!text && !media){ alert('Add something'); return; } let posts=getPosts(); posts.push({id:'p'+Date.now()+Math.random().toString(36).slice(2,6),name:currentUser.name,user:currentUser.user,text:text,media:media||'',likes:[],comments:[],time:Date.now()}); savePosts(posts); renderFeed(); renderMe(); }
+function likePost(id){ let posts=getPosts(); let p=posts.find(x=>x.id===id); p.likes=p.likes||[]; if(p.likes.includes(currentUser.user)) p.likes=p.likes.filter(u=>u!==currentUser.user); else p.likes.push(currentUser.user); savePosts(posts); renderFeed(); }
+function commentPost(id){ let txt=prompt('Write comment:'); if(!txt) return; let posts=getPosts(); let p=posts.find(x=>x.id===id); p.comments=p.comments||[]; p.comments.push({name:currentUser.name,text:txt}); savePosts(posts); renderFeed(); }
+function sharePost(id){ let posts=getPosts(); let p=posts.find(x=>x.id===id); window.open('https://wa.me/?text='+encodeURIComponent('🔥 SOKOTOP - '+p.name+': '+p.text)); }
+function editPost(id){ let posts=getPosts(); let p=posts.find(x=>x.id===id); let nt=prompt('Edit post:', p.text); if(nt===null) return; p.text=nt; savePosts(posts); renderFeed(); renderMe(); }
+function deletePost(id){ if(!confirm('Delete?')) return; savePosts(getPosts().filter(x=>x.id!==id)); renderFeed(); renderMe(); }
+function quickPost(){ let t=document.getElementById('postText2').value; createPost(t,''); document.getElementById('postText2').value=''; goSection('home', document.querySelector('.bottom-nav div')); }
+document.getElementById('postFile').addEventListener('change', function(){ let file=this.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=e=>{ document.getElementById('postPreview').innerHTML = file.type.startsWith('video') ? '<video src="'+e.target.result+'" controls></video>' : '<img src="'+e.target.result+'">'; document.getElementById('postPreview').dataset.url=e.target.result; }; reader.readAsDataURL(file); });
+document.getElementById('btnCreatePost').onclick=()=>{ let text=document.getElementById('postText').value; let url=document.getElementById('postPreview').dataset.url; let media=url?(url.startsWith('data:video')?'<video src="'+url+'" controls></video>':'<img src="'+url+'">'):''; createPost(text, media); document.getElementById('postText').value=''; document.getElementById('postPreview').innerHTML=''; document.getElementById('postPreview').dataset.url=''; };
+function renderFriends(){ let users=getUsers(); let q=(document.getElementById('searchFriend')?.value||'').toLowerCase(); let myFriends=(currentUser.friends||[]).filter(f=>!(currentUser.blocked||[]).includes(f)); document.getElementById('friendsList').innerHTML = '<h3>My Friends ('+myFriends.length+')</h3>' + (myFriends.map(f=>{ let u=users.find(x=>x.user===f); if(!u) return ''; return '<div class="friend-card">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+u.name+'</b><br><small>@'+u.user+'</small></div><button class="small-btn" onclick="openChat(\''+u.user+'\')">💬 Chat</button><button class="small-btn gray" onclick="unfriend(\''+u.user+'\')">❌</button><button class="small-btn red" onclick="blockFriend(\''+u.user+'\')">🚫</button></div>'; }).join('') || '<p>No friends.</p>'); let blocked=currentUser.blocked||[]; document.getElementById('blockedList').innerHTML = blocked.length===0?'<p>No blocked.</p>':blocked.map(f=>{ let u=users.find(x=>x.user===f)||{name:f,user:f}; return '<div class="friend-card">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+u.name+'</b><br><small>@'+u.user+'</small></div><button class="small-btn green" onclick="unblockFriend(\''+u.user+'\')">Unblock</button></div>'; }).join(''); let suggested=users.filter(u=>u.user!==currentUser.user && !myFriends.includes(u.user) && !blocked.includes(u.user) && (u.name.toLowerCase().includes(q)||u.user.includes(q))); if(suggested.length===0 && !q){ suggested=[{name:'SOKOTOP Official',user:'sokotop',phone:''},{name:'Kitui News',user:'kitui_news',phone:''},{name:'DJ Kalondu',user:'dj_kalondu',phone:''}]; } document.getElementById('suggestedList').innerHTML = suggested.map(u=>'<div class="friend-card">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+u.name+'</b><br><small>@'+u.user+'</small></div><button class="small-btn" onclick="addFriend(\''+u.user+'\')">+ Add</button></div>').join(''); }
+function addFriend(user){ let users=getUsers(); if(!users.find(u=>u.user===user)){ users.push({name:user,user:user,phone:'',pass:'',friends:[],blocked:[]}); saveUsers(users); } currentUser.friends=currentUser.friends||[]; if(!currentUser.friends.includes(user)) currentUser.friends.push(user); syncUser(); renderFriends(); renderChatFriends(); renderMe(); }
+function unfriend(user){ if(!confirm('Unfriend '+user+'?')) return; currentUser.friends=(currentUser.friends||[]).filter(f=>f!==user); syncUser(); renderFriends(); renderChatFriends(); renderMe(); }
+function blockFriend(user){ if(user===currentUser.user) return; if(!confirm('BLOCK '+user+'?')) return; currentUser.blocked=currentUser.blocked||[]; if(!currentUser.blocked.includes(user)) currentUser.blocked.push(user); currentUser.friends=(currentUser.friends||[]).filter(f=>f!==user); syncUser(); document.getElementById('chatWindow').style.display='none'; activeChat=null; renderFriends(); renderChatFriends(); renderFeed(); renderMe(); renderRequests(); renderPolls(); renderReels(); }
+function unblockFriend(user){ currentUser.blocked=(currentUser.blocked||[]).filter(f=>f!==user); syncUser(); renderFriends(); renderFeed(); renderRequests(); renderPolls(); renderReels(); }
+let activeChat=null;
+function renderChatFriends(){ let users=getUsers(); let friends=(currentUser.friends||[]).filter(f=>!(currentUser.blocked||[]).includes(f)); if(friends.length===0){ document.getElementById('chatFriends').innerHTML='<p>No friends yet.</p>'; return; } document.getElementById('chatFriends').innerHTML = friends.map(f=>{ let u=users.find(x=>x.user===f)||{name:f,user:f}; return '<div class="chat-card" onclick="openChat(\''+u.user+'\')">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+u.name+'</b><br><small>Tap to chat →</small></div><button class="small-btn red" onclick="event.stopPropagation();blockFriend(\''+u.user+'\')">🚫</button></div>'; }).join(''); }
+function openChat(user){ if((currentUser.blocked||[]).includes(user)){ alert('Blocked. Unblock first.'); return; } activeChat=user; let users=getUsers(); let u=users.find(x=>x.user===user)||{name:user}; document.getElementById('chatWindow').style.display='block'; document.getElementById('chatWith').innerText='Chat with '+u.name; goSection('chat', document.querySelectorAll('.bottom-nav div')[6]); renderMessages(); }
+function getChats(){ return JSON.parse(localStorage.getItem('sokotop_chats')||'{}'); }
+function renderMessages(){ if(!activeChat) return; let chats=getChats(); let key=[currentUser.user, activeChat].sort().join('_'); let msgs=chats[key]||[]; document.getElementById('chatMessages').innerHTML = msgs.map(m=>'<div class="msg '+(m.from===currentUser.user?'me':'other')+'"><b>'+(m.from===currentUser.user?'You':m.fromName)+':</b> '+m.text+'</div>').join('') || '<p>Say Hi!</p>'; }
+function sendChat(){ let text=document.getElementById('chatInput').value.trim(); if(!text||!activeChat) return; let chats=getChats(); let key=[currentUser.user, activeChat].sort().join('_'); chats[key]=chats[key]||[]; chats[key].push({from:currentUser.user,fromName:currentUser.name,text:text,time:Date.now()}); localStorage.setItem('sokotop_chats', JSON.stringify(chats)); document.getElementById('chatInput').value=''; renderMessages(); }
+function deleteChat(user){ if(!user) return; if(!confirm('Delete chat?')) return; let chats=getChats(); let key=[currentUser.user, user].sort().join('_'); delete chats[key]; localStorage.setItem('sokotop_chats', JSON.stringify(chats)); document.getElementById('chatWindow').style.display='none'; activeChat=null; }
+let newPicData='';
+function toggleEditProfile(){ let box=document.getElementById('editProfileBox'); if(box.style.display==='none'){ box.style.display='block'; document.getElementById('editName').value=currentUser.name; document.getElementById('editPhone').value=currentUser.phone||''; document.getElementById('editBio').value=currentUser.bio||''; } else { box.style.display='none'; } }
+function previewProfilePic(e){ let file=e.target.files[0]; if(!file) return; let r=new FileReader(); r.onload=ev=>{ newPicData=ev.target.result; document.getElementById('profilePicPreview').innerHTML='<img src="'+newPicData+'" style="width:80px;height:80px;border-radius:50%;object-fit:cover">'; }; r.readAsDataURL(file); }
+function saveProfile(){ let name=document.getElementById('editName').value.trim(); let phone=document.getElementById('editPhone').value.trim(); let bio=document.getElementById('editBio').value.trim(); if(!name) return; currentUser.name=name; currentUser.phone=phone; currentUser.bio=bio; if(newPicData) currentUser.pic=newPicData; syncUser(); updateMeUI(); document.getElementById('headerUser').innerText='👤 '+currentUser.name.split(' ')[0]; document.getElementById('postAs').innerText=currentUser.name; document.getElementById('editProfileBox').style.display='none'; newPicData=''; renderFeed(); renderFriends(); alert('Saved!'); }
+function renderMe(){ let posts=getPosts().filter(p=>p.user===currentUser.user); document.getElementById('meStats').innerText=posts.length+' Posts • '+(currentUser.friends||[]).length+' Friends • '+(currentUser.saved||[]).length+' Saved'; document.getElementById('mySaved').innerHTML = (currentUser.saved||[]).map(id=>{ let r=getReels().find(x=>x.id===id); if(!r) return ''; return '<div class="reel-card"><p><b>'+r.title+'</b> - by '+r.name+'</p><video src="'+r.video+'" controls style="width:100%;border-radius:10px"></video><div class="post-actions"><button class="small-btn green" onclick="downloadReel(\''+r.id+'\')">⬇️ Download</button><button class="small-btn gray" onclick="saveReel(\''+r.id+'\')">Remove Saved</button></div></div>'; }).join('') || '<p>No saved reels yet. Tap 🔖 Save on any Reel!</p>'; document.getElementById('myPosts').innerHTML = posts.slice().reverse().map(p=>'<div class="post-card"><b>'+p.name+'</b><p>'+p.text+'</p><div class="post-actions"><button class="small-btn gray" onclick="editPost(\''+p.id+'\')">✏️ Edit</button><button class="small-btn red" onclick="deletePost(\''+p.id+'\')">🗑️ Delete</button></div></div>').join('') || '<p>No posts</p>'; let myPolls=getPolls().filter(p=>p.user===currentUser.user); document.getElementById('myPolls').innerHTML = myPolls.map(p=>'<div class="poll-card"><b>'+p.q+'</b><p>🗳️ '+p.opts.reduce((s,o)=>s+o.votes.length,0)+' votes</p><button class="small-btn red" onclick="deletePoll(\''+p.id+'\')">🗑️ Delete</button></div>').join('') || '<p>No polls</p>'; let myReqs=getRequests().filter(r=>r.user===currentUser.user); document.getElementById('myReqs').innerHTML = myReqs.slice().reverse().map(r=>'<div class="req-card"><b>'+r.cat+'</b><p>'+r.text+'</p><p>💬 '+r.replies.length+' Replies</p></div>').join('') || '<p>No requests</p>'; }
 let ads=[]; let current=0, timeLeft=10, interval; let DB;
 function openDB(){ return new Promise((res,rej)=>{ let req=indexedDB.open('SOKOTOP_TEMP',1); req.onupgradeneeded=e=>{ let db=e.target.result; if(!db.objectStoreNames.contains('ads')) db.createObjectStore('ads',{keyPath:'id'}); }; req.onsuccess=e=>{ DB=e.target.result; res(DB); }; req.onerror=e=>rej(e); }); }
-function showTicker(){ let t=localStorage.getItem('sokotop_ticker'); if(t){ let longText = t + '   •••   ' + t + '   •••   ' + t + '   •••   ' + t; document.getElementById('tickerArea').innerHTML='<div class="ticker-bar"><span class="ticker-label">📢 BREAKING</span><span class="ticker-track">'+longText+'</span></div>'; } else { document.getElementById('tickerArea').innerHTML=
+function showTicker(){ let t=localStorage.getItem('sokotop_ticker'); if(t){ let one = t + '   •••   ' + t + '   •••   '; document.getElementById('tickerArea').innerHTML='<div class="ticker-bar"><span class="ticker-label">📢 BREAKING</span><div class="ticker-viewport"><div class="ticker-track"><span>'+one+'</span><span>'+one+'</span></div></div></div>'; } else { document.getElementById('tickerArea').innerHTML=''; } }
 async function loadAds(){ try{ await openDB(); let meta=JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); let now=Date.now(); meta=meta.filter(m=>m.endsAt>now); localStorage.setItem('sokotop_ads_meta', JSON.stringify(meta)); ads=[]; for(let m of meta){ await new Promise((resolve)=>{ let req=DB.transaction(['ads'],'readonly').objectStore('ads').get(m.id); req.onsuccess=()=>{ if(req.result){ let url=URL.createObjectURL(req.result.file); let left=Math.floor((m.endsAt-now)/1000); ads.push({...m,url:url,seconds:left}); } resolve(); }; req.onerror=()=>resolve(); }); } }catch(e){ console.log(e); } }
 function formatTime(sec){ if(sec>=3600) return Math.floor(sec/3600)+'h '+Math.floor((sec%3600)/60)+'m'; if(sec>=60) return Math.floor(sec/60)+'m '+ (sec%60)+'s'; return sec+'s'; }
-function showTV(i){ if(ads.length===0) return; current=i; let ad=ads[i]; let media=''; if(ad.type==='video'){ media='<video src="'+ad.url+'" autoplay controls playsinline></video>'; } else if(ad.type==='audio'){ media='<div style="padding:20px;text-align:center;color:#fff"><h2>🎵 '+ad.title+'</h2><p>Now Playing - Watch Only</p><audio src="'+ad.url+'" autoplay controls style="width:100%;margin-top:10px"></audio></div>'; } else { media='<img src="'+ad.url+'">'; } document.getElementById('tvScreen').innerHTML = media + '<div class="tv-info"><h3>'+ad.title+'</h3><p class="ad-meta">Playing Now • Ends in '+formatTime(ad.seconds)+' • Watch Only</p><button onclick="window.open(\'https://wa.me/'+ad.wa+'\')">💬 WhatsApp Order</button></div>'; let dots=''; ads.forEach((_,idx)=>dots+='<span class="dot '+(idx===i?'active':'')+'"></span>'); document.getElementById('tvDots').innerHTML=dots; timeLeft=ad.seconds; document.getElementById('tvLabel').className='tv-label'; document.getElementById('tvLabel').innerHTML='<span>📺 SOKOTOP TV - NOW PLAYING</span><span id="tvTimer"></span>'; showTicker(); }
+function showTV(i){ if(ads.length===0) return; current=i; let ad=ads[i]; let media=''; if(ad.type==='video'){ media='<video src="'+ad.url+'" autoplay controls playsinline></video>'; } else if(ad.type==='audio'){ media='<div style="padding:20px;text-align:center;color:#fff"><h2>🎵 '+ad.title+'</h2><p>Now Playing</p><audio src="'+ad.url+'" autoplay controls style="width:100%;margin-top:10px"></audio></div>'; } else { media='<img src="'+ad.url+'">'; } document.getElementById('tvScreen').innerHTML = media + '<div class="tv-info"><h3>'+ad.title+'</h3><p class="ad-meta">Playing Now • Ends in '+formatTime(ad.seconds)+' • Watch Only</p><button onclick="window.open(\'https://wa.me/'+ad.wa+'\')">💬 WhatsApp Order</button></div>'; let dots=''; ads.forEach((_,idx)=>dots+='<span class="dot '+(idx===i?'active':'')+'"></span>'); document.getElementById('tvDots').innerHTML=dots; timeLeft=ad.seconds; document.getElementById('tvLabel').className='tv-label'; document.getElementById('tvLabel').innerHTML='<span>📺 SOKOTOP TV - NOW PLAYING</span><span id="tvTimer"></span>'; showTicker(); }
 function startTV(){ if(ads.length===0) return; showTV(0); clearInterval(interval); interval=setInterval(()=>{ timeLeft--; let t=document.getElementById('tvTimer'); if(t) t.innerText='⏱️ Ends in '+formatTime(timeLeft); if(timeLeft<=0){ location.reload(); } },1000); }
 function getYTId(link){ if(!link) return ''; link=link.trim(); if(link.includes('v=')) return link.split('v=')[1].split('&')[0].split('?')[0]; if(link.includes('youtu.be/')) return link.split('youtu.be/')[1].split('?')[0].split('&')[0]; if(link.includes('/live/')) return link.split('/live/')[1].split('?')[0].split('&')[0]; if(link.includes('/embed/')) return link.split('/embed/')[1].split('?')[0].split('&')[0]; if(link.includes('/shorts/')) return link.split('/shorts/')[1].split('?')[0]; return link.split('/').pop().split('?')[0]; }
 function checkLive(){ let live = JSON.parse(localStorage.getItem('sokotop_live')||'null'); if(live){ let isSports = live.type==='SPORTS'; let label = isSports ? '⚽ SOKOTOP SPORTS • ' : '📺 SOKOTOP TV • '; let brand = isSports ? 'SOKOTOP SPORTS' : 'SOKOTOP TV'; let sub = isSports ? 'SOKOTOP Sports Exclusive Live • Watch Only Here' : 'SOKOTOP Exclusive Live • Watch Only Here'; document.getElementById('tvLabel').className='tv-label live'; document.getElementById('tvLabel').innerHTML='<span>🔴 '+label+live.title+'</span><span>● LIVE</span>'; if(live.link){ let id=getYTId(live.link); document.getElementById('tvScreen').innerHTML='<div class="stealth-wrap"><div class="stealth-top"><b>'+brand+'</b><span class="stealth-live">🔴 LIVE</span></div><iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="stealth-bottom"><span>'+live.title+' - SOKOTOP Exclusive</span></div><div class="stealth-logo">SOKOTOP</div></div><div class="tv-info"><h3>'+live.title+'</h3><p class="ad-meta">'+sub+'</p></div>'; } else { document.getElementById('tvScreen').innerHTML='<div class="live-link-box"><h2>🔴 LIVE</h2><p>'+live.title+'</p></div>'; } document.getElementById('liveInteract').style.display='block'; showTicker(); return true; } else { document.getElementById('liveInteract').style.display='none'; return false; } }
@@ -64,11 +265,16 @@ function checkLive(){ let live = JSON.parse(localStorage.getItem('sokotop_live')
 setInterval(()=>{ showTicker(); let l=JSON.parse(localStorage.getItem('sokotop_live')||'null'); if(l && document.getElementById('liveInteract').style.display==='none'){ location.reload(); } if(!l && document.getElementById('liveInteract').style.display==='block'){ location.reload(); } },3000);
 let likes = parseInt(localStorage.getItem('sokotop_likes')||'0'); let comments = JSON.parse(localStorage.getItem('sokotop_live_comments')||'[]');
 function likeLive(){ likes++; localStorage.setItem('sokotop_likes', likes); document.getElementById('likeCount').innerText=likes; }
-function sendLiveComment(){ let text=document.getElementById('liveCommentInput').value; if(!text) return; comments.push({name:'Kitui Fan', text:text}); localStorage.setItem('sokotop_live_comments', JSON.stringify(comments)); document.getElementById('liveCommentInput').value=''; showComments(); }
+function sendLiveComment(){ let text=document.getElementById('liveCommentInput').value; if(!text) return; comments.push({name:currentUser?currentUser.name:'Kitui Fan', text:text}); localStorage.setItem('sokotop_live_comments', JSON.stringify(comments)); document.getElementById('liveCommentInput').value=''; showComments(); }
 function showComments(){ document.getElementById('likeCount').innerText=likes; document.getElementById('liveComments').innerHTML = comments.slice(-20).map(c=>'<div class="comment-item"><b>'+c.name+':</b> '+c.text+'</div>').join('') || '<p class="empty-text">Be first to comment - Goal!!!</p>'; }
 showComments();
-document.getElementById('postFile').addEventListener('change', function(){ let file=this.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=e=>{ document.getElementById('postPreview').innerHTML = file.type.startsWith('video') ? '<video src="'+e.target.result+'" controls></video>' : '<img src="'+e.target.result+'">'; document.getElementById('postPreview').dataset.url=e.target.result; }; reader.readAsDataURL(file); });
-document.getElementById('btnCreatePost').onclick=()=>{ let text=document.getElementById('postText').value; let url=document.getElementById('postPreview').dataset.url; if(!text && !url){alert('Add something');return;} let media=url?(url.startsWith('data:video')?'<video src="'+url+'" controls></video>':'<img src="'+url+'">'):''; let html='<div class="post-card"><b>You • Kitui</b><p class="post-text">'+text+'</p>'+media+'<small class="post-time">Just now</small></div>'; document.getElementById('feedPosts').insertAdjacentHTML('afterbegin',html); document.getElementById('postText').value=''; document.getElementById('postPreview').innerHTML=''; document.getElementById('postPreview').dataset.url=''; };
+let isMuted = false; let zoomLevel = 1;
+function toggleMute(){ isMuted = !isMuted; let v = document.querySelector('#tvScreen video'); let a = document.querySelector('#tvScreen audio'); let iframe = document.querySelector('#tvScreen iframe'); if(v){ v.muted = isMuted; v.volume = isMuted ? 0 : 1; } if(a){ a.muted = isMuted; a.volume = isMuted ? 0 : 1; } if(iframe){ let src = iframe.src; if(isMuted){ if(!src.includes('mute=1')) iframe.src = src.replace('mute=0','mute=1') + (src.includes('mute=')?'':'&mute=1'); } else { iframe.src = src.replace('mute=1','mute=0'); } } document.getElementById('muteBtn').innerText = isMuted ? '🔇 Muted - Tap to Unmute' : '🔊 Sound ON'; document.getElementById('muteBtn').style.background = isMuted ? '#e60000' : '#fff'; document.getElementById('muteBtn').style.color = isMuted ? '#fff' : '#000'; }
+function toggleFullscreen(){ let el = document.getElementById('tvContainer'); if(!document.fullscreenElement){ if(el.requestFullscreen) el.requestFullscreen(); else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen(); } else { if(document.exitFullscreen) document.exitFullscreen(); } }
+function zoomIn(){ zoomLevel += 0.2; if(zoomLevel>2.5) zoomLevel=2.5; applyZoom(); }
+function zoomOut(){ zoomLevel -= 0.2; if(zoomLevel<0.6) zoomLevel=0.6; applyZoom(); }
+function resetZoom(){ zoomLevel=1; applyZoom(); }
+function applyZoom(){ let screen = document.getElementById('tvScreen'); screen.style.transform = 'scale('+zoomLevel+')'; screen.style.transformOrigin = 'center center'; screen.style.transition = 'transform 0.2s'; if(zoomLevel===1){ screen.style.transform='none'; } }
 </script>
 </body>
 </html>
