@@ -1,6 +1,6 @@
 /* ========== SOKOTOP - ONE CSS FOR BOTH ========== */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial;background:#f0f2f5;padding-bottom:80px}
+body{font-family:Arial;background:#f0f2f5;padding-bottom:95px}
 
 /* --- USER HEADER --- */
 .header{background:#0a2a5e;color:#fff;padding:12px 15px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:100}
@@ -9,7 +9,7 @@ body{font-family:Arial;background:#f0f2f5;padding-bottom:80px}
 /* --- TOP NAV - Home / Requests / Polls / Friends --- */
 .top-nav{display:flex;gap:4px;overflow-x:auto;white-space:nowrap;background:#fff;padding:8px 10px;position:sticky;top:48px;z-index:99;border-bottom:1px solid #eee;scrollbar-width:none}
 .top-nav::-webkit-scrollbar{display:none}
-.top-nav div{flex-shrink:0;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:bold;color:#555;cursor:pointer;background:#f0f2f5}
+.top-nav div{flex-shrink:0;padding:7px 11px;border-radius:20px;font-size:13px;font-weight:bold;color:#555;cursor:pointer;background:#f0f2f5}
 .top-nav div.active{background:#1877f2;color:#fff}
 
 /* --- BOTTOM NAV - Home / Reels / + / Chat / Me --- */
@@ -69,6 +69,7 @@ body{font-family:Arial;background:#f0f2f5;padding-bottom:80px}
 
 /* --- USER POSTS --- */
 .create-post,.post-card{background:#fff;margin:10px;padding:12px;border-radius:12px}
+.create-post{margin-bottom:20px}
 textarea,input{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px}
 .gallery-btn{display:block;background:#e4e6eb;padding:10px;text-align:center;border-radius:8px;margin:6px 0;cursor:pointer;font-size:13px;font-weight:bold}
 .btn-post{background:#1877f2;color:#fff;border:none;padding:12px;width:100%;border-radius:20px;font-weight:bold;cursor:pointer;margin-top:5px}
@@ -139,3 +140,9 @@ body.admin-body{background:#0a2a5e;padding:10px}
 .small-text{font-size:13px}
 .questions-box{background:#f0f2f5;padding:10px;border-radius:10px;font-size:13px;min-height:60px}
 .back-link{color:#0a2a5e}
+
+/* --- FIXES FROM SCREENSHOT --- */
+.top-nav div{padding:7px 11px;font-size:13px}
+body{padding-bottom:95px}
+.create-post{margin-bottom:20px}
+#mainApp{padding-bottom:20px}
