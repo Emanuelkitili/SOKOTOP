@@ -6,6 +6,17 @@
 <title>SOKOTOP - Kitui's TV</title>
 <link rel="stylesheet" href="style.css">
 <style>
+.top-nav{display:flex;gap:4px;overflow-x:auto;white-space:nowrap;background:#fff;padding:8px 10px;position:sticky;top:0;z-index:100;border-bottom:1px solid #eee;scrollbar-width:none}
+.top-nav::-webkit-scrollbar{display:none}
+.top-nav div{flex-shrink:0;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:bold;color:#555;cursor:pointer;background:#f0f2f5}
+.top-nav div.active{background:#1877f2;color:#fff}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex!important;align-items:flex-end;justify-content:space-around;background:#fff;border-top:1px solid #ddd;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:1000;box-shadow:0 -2px 10px rgba(0,0,0,0.08)}
+.bottom-nav div{flex:1;text-align:center;font-size:11px!important;padding:6px 2px!important;color:#555;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bottom-nav div.active{color:#1877f2;font-weight:bold}
+.bottom-nav div .nav-ico{font-size:22px;line-height:1}
+.bottom-nav .nav-center{flex:0 0 58px;margin-top:-28px}
+.bottom-nav .nav-center .plus-btn{width:52px;height:52px;border-radius:50%;background:#1877f2;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(24,119,242,0.5);border:3px solid #fff}
+body{padding-bottom:75px}
 .ticker-bar{background:#e60000;color:#fff;width:100%;overflow:hidden;white-space:nowrap;position:relative;z-index:20;display:flex;align-items:stretch;height:48px;border-top:2px solid #fff;border-bottom:2px solid #fff}
 .ticker-label{background:#fff;color:#e60000;padding:0 14px;font-size:18px;font-weight:900;flex-shrink:0;z-index:3;display:flex;align-items:center;white-space:nowrap}
 .ticker-viewport{flex:1;overflow:hidden;position:relative;display:flex;align-items:center}
@@ -48,13 +59,17 @@
 .poll-opt{width:100%;text-align:left;padding:12px;border:1px solid #ddd;border-radius:10px;margin:5px 0;background:#fff;position:relative;overflow:hidden;cursor:pointer}
 .poll-opt .bar{position:absolute;left:0;top:0;bottom:0;background:#dbeafe;z-index:0}
 .poll-opt span{position:relative;z-index:1;font-weight:bold}
-.bottom-nav{display:flex!important}
-.bottom-nav div{flex:1;font-size:10px!important;padding:8px 1px!important}
 </style>
 </head>
 <body>
 <div id="mainApp">
 <div class="header"><div class="logo">SOKOTOP</div><div>🔔 <span id="headerUser"></span></div></div>
+<div class="top-nav">
+<div class="active" onclick="goSection('home',this,'top')">🏠 Home</div>
+<div onclick="goSection('requests',this,'top')">🙏 Requests</div>
+<div onclick="goSection('polls',this,'top')">📊 Polls</div>
+<div onclick="goSection('friends',this,'top')">👥 Friends</div>
+</div>
 
 <div id="sec-home" class="section active">
 <div class="tv-container" id="tvContainer">
@@ -105,7 +120,7 @@
 <input type="text" id="pollQ" placeholder="Question e.g. Who is Best Artist in Kitui?">
 <input type="text" id="pollO1" placeholder="Option 1 e.g. Wilberforce Musyoka">
 <input type="text" id="pollO2" placeholder="Option 2 e.g. DJ Kalondu">
-<input type="text" id="pollO3" placeholder="Option 3 (optional) e.g. Ken wa Maria">
+<input type="text" id="pollO3" placeholder="Option 3 (optional)">
 <input type="text" id="pollO4" placeholder="Option 4 (optional)">
 <button class="btn-post" onclick="createPoll()" style="background:#8e44ad">📊 Create Poll</button>
 </div>
@@ -140,8 +155,8 @@
 <div id="sec-post" class="section">
 <div style="padding:12px"><h2>➕ Create Post</h2>
 <div class="create-post"><p>Posting as <b class="postAs2"></b></p><textarea id="postText2" placeholder="Write something..."></textarea><button class="btn-post" onclick="quickPost()">Post to Home</button></div>
-<button class="btn-post" onclick="goSection('polls',document.querySelectorAll('.bottom-nav div')[3])" style="background:#8e44ad;margin-top:10px">📊 Or Create a Poll →</button>
-<button class="btn-post" onclick="goSection('reels',document.querySelectorAll('.bottom-nav div')[1])" style="background:#e60000;margin-top:8px">🎬 Or Post a Reel →</button>
+<button class="btn-post" onclick="goSection('polls',document.querySelectorAll('.top-nav div')[2],'top')" style="background:#8e44ad;margin-top:10px">📊 Or Create a Poll →</button>
+<button class="btn-post" onclick="goSection('reels',document.querySelectorAll('.bottom-nav div')[1],'bottom')" style="background:#e60000;margin-top:8px">🎬 Or Post a Reel →</button>
 </div>
 </div>
 <div id="sec-chat" class="section">
@@ -178,7 +193,14 @@
 <button class="btn-post" onclick="deleteMyAccount()" style="background:#333;margin-top:8px">🗑️ Delete My Account</button>
 </div>
 </div>
-<div class="bottom-nav"><div class="active" onclick="goSection('home',this)">🏠 Home</div><div onclick="goSection('reels',this)">🎬 Reels</div><div onclick="goSection('requests',this)">🙏 Requests</div><div onclick="goSection('polls',this)">📊 Polls</div><div onclick="goSection('friends',this)">👥 Friends</div><div onclick="goSection('post',this)">➕ Post</div><div onclick="goSection('chat',this)">💬 Chat</div><div onclick="goSection('me',this)">👤 Me</div></div>
+
+<div class="bottom-nav">
+<div class="active" onclick="goSection('home',this,'bottom')"><span class="nav-ico">🏠</span>Home</div>
+<div onclick="goSection('reels',this,'bottom')"><span class="nav-ico">🎬</span>Reels</div>
+<div class="nav-center" onclick="goSection('post',document.querySelectorAll('.bottom-nav div')[2],'bottom')"><div class="plus-btn">+</div>Post</div>
+<div onclick="goSection('chat',this,'bottom')"><span class="nav-ico">💬</span>Chat</div>
+<div onclick="goSection('me',this,'bottom')"><span class="nav-ico">👤</span>Me</div>
+</div>
 </div>
 <script>
 if(!localStorage.getItem('sokotop_current')){ window.location.href='login.html'; }
@@ -193,8 +215,7 @@ function deleteMyAccount(){ if(!confirm('Delete account FOREVER?')) return; let 
 function startApp(){ currentUser=JSON.parse(localStorage.getItem('sokotop_current')||'null'); if(!currentUser){ window.location.href='login.html'; return; } if(!currentUser.blocked) currentUser.blocked=[]; if(!currentUser.saved) currentUser.saved=[]; if(!currentUser.friends) currentUser.friends=[]; document.getElementById('headerUser').innerText='👤 '+currentUser.name.split(' ')[0]; document.getElementById('postAs').innerText=currentUser.name; document.querySelectorAll('.postAs2').forEach(e=>e.innerText=currentUser.name); updateMeUI(); renderFeed(); renderFriends(); renderChatFriends(); renderMe(); renderRequests(); renderPolls(); renderReels(); }
 function updateMeUI(){ document.getElementById('meName').innerText=currentUser.name; document.getElementById('meUser').innerText='@'+currentUser.user+' • '+(currentUser.phone||'Kitui')+(currentUser.bio?' • '+currentUser.bio:''); let av=document.getElementById('meAvatar'); if(currentUser.pic){ av.innerHTML='<img src="'+currentUser.pic+'">'; } else { av.innerHTML=currentUser.name.charAt(0).toUpperCase(); } }
 startApp();
-function goSection(name,el){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById('sec-'+name).classList.add('active'); document.querySelectorAll('.bottom-nav div').forEach(d=>d.classList.remove('active')); el.classList.add('active'); if(name==='friends') renderFriends(); if(name==='chat') renderChatFriends(); if(name==='me') renderMe(); if(name==='requests') renderRequests(); if(name==='polls') renderPolls(); if(name==='reels') renderReels(); }
-// REELS + SAVE + DOWNLOAD
+function goSection(name,el,where){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById('sec-'+name).classList.add('active'); if(where==='top'){ document.querySelectorAll('.top-nav div').forEach(d=>d.classList.remove('active')); document.querySelectorAll('.bottom-nav div').forEach(d=>d.classList.remove('active')); if(el) el.classList.add('active'); if(name==='home'){ document.querySelectorAll('.bottom-nav div')[0].classList.add('active'); } } else { document.querySelectorAll('.bottom-nav div').forEach(d=>d.classList.remove('active')); if(el) el.classList.add('active'); if(name==='home'){ document.querySelectorAll('.top-nav div')[0].classList.add('active'); } else { document.querySelectorAll('.top-nav div').forEach(d=>d.classList.remove('active')); } } window.scrollTo({top:0,behavior:'smooth'}); if(name==='friends') renderFriends(); if(name==='chat') renderChatFriends(); if(name==='me') renderMe(); if(name==='requests') renderRequests(); if(name==='polls') renderPolls(); if(name==='reels') renderReels(); }
 function getReels(){ return JSON.parse(localStorage.getItem('sokotop_reels')||'[]'); }
 function saveReels(r){ localStorage.setItem('sokotop_reels', JSON.stringify(r)); }
 let reelData='';
@@ -205,14 +226,12 @@ function saveReel(id){ currentUser.saved=currentUser.saved||[]; if(currentUser.s
 function downloadReel(id){ let reels=getReels(); let r=reels.find(x=>x.id===id); if(!r) return; let a=document.createElement('a'); a.href=r.video; a.download='SOKOTOP-'+r.title.replace(/[^a-z0-9]/gi,'_')+'.mp4'; document.body.appendChild(a); a.click(); a.remove(); alert('Downloaded! 📲 Now share it on WhatsApp Status - Tell them it is from SOKOTOP!'); }
 function deleteReel(id){ if(!confirm('Delete this reel?')) return; saveReels(getReels().filter(x=>x.id!==id)); renderReels(); renderMe(); }
 function renderReels(){ let reels=getReels().filter(r=>!(currentUser.blocked||[]).includes(r.user)); let users=getUsers(); document.getElementById('reelList').innerHTML = reels.slice().reverse().map(r=>{ let u=users.find(x=>x.user===r.user)||{name:r.name}; let isMine=r.user===currentUser.user; let saved=(currentUser.saved||[]).includes(r.id); let liked=(r.likes||[]).includes(currentUser.user); return '<div class="reel-card"><div style="display:flex;gap:10px;align-items:center;width:100%">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+r.name+' • @'+r.user+'</b><br><small>'+new Date(r.time).toLocaleString()+'</small></div><span class="cat-pill">🎬 REEL</span></div><p><b>'+r.title+'</b></p><video src="'+r.video+'" controls style="width:100%;border-radius:12px;background:#000"></video><p style="font-size:13px">❤️ '+(r.likes||[]).length+' Likes</p><div class="post-actions"><button class="small-btn '+(liked?'red':'gray')+'" onclick="likeReel(\''+r.id+'\')">'+(liked?'❤️ Liked':'🤍 Like')+'</button><button class="small-btn '+(saved?'purple':'gray')+'" onclick="saveReel(\''+r.id+'\')">'+(saved?'🔖 Saved':'🔖 Save')+'</button><button class="small-btn green" onclick="downloadReel(\''+r.id+'\')">⬇️ Download</button><button class="small-btn green" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\'Watch this SOKOTOP Reel: \'+r.title+\' - Kitui TikTok!\'))">📲 Share WhatsApp</button>'+(isMine?'<button class="small-btn red" onclick="deleteReel(\''+r.id+'\')">🗑️ Delete</button>':'')+'</div></div>'; }).join('') || '<p style="text-align:center;color:#888">No Reels yet. Be first - Post funny Kitui video!</p>'; }
-// POLLS
 function getPolls(){ return JSON.parse(localStorage.getItem('sokotop_polls')||'[]'); }
 function savePolls(p){ localStorage.setItem('sokotop_polls', JSON.stringify(p)); }
 function createPoll(){ let q=document.getElementById('pollQ').value.trim(); let o1=document.getElementById('pollO1').value.trim(); let o2=document.getElementById('pollO2').value.trim(); let o3=document.getElementById('pollO3').value.trim(); let o4=document.getElementById('pollO4').value.trim(); if(!q||!o1||!o2){ alert('Need Question + At least 2 Options!'); return; } let opts=[o1,o2]; if(o3) opts.push(o3); if(o4) opts.push(o4); let polls=getPolls(); polls.push({id:'pl'+Date.now()+Math.random().toString(36).slice(2,6),name:currentUser.name,user:currentUser.user,q:q,opts:opts.map(t=>({text:t,votes:[]})),time:Date.now()}); savePolls(polls); document.getElementById('pollQ').value=''; document.getElementById('pollO1').value=''; document.getElementById('pollO2').value=''; document.getElementById('pollO3').value=''; document.getElementById('pollO4').value=''; renderPolls(); renderMe(); alert('Poll created! Let Kitui vote! 📊'); }
 function votePoll(pollId, optIdx){ let polls=getPolls(); let p=polls.find(x=>x.id===pollId); if(p.opts.some(o=>o.votes.includes(currentUser.user))){ alert('You already voted!'); return; } p.opts[optIdx].votes.push(currentUser.user); savePolls(polls); renderPolls(); }
 function deletePoll(id){ if(!confirm('Delete poll?')) return; savePolls(getPolls().filter(x=>x.id!==id)); renderPolls(); renderMe(); }
 function renderPolls(){ let polls=getPolls().filter(p=>!(currentUser.blocked||[]).includes(p.user)); let users=getUsers(); document.getElementById('pollList').innerHTML = polls.slice().reverse().map(p=>{ let u=users.find(x=>x.user===p.user)||{name:p.name}; let total=p.opts.reduce((s,o)=>s+o.votes.length,0); let voted=p.opts.some(o=>o.votes.includes(currentUser.user)); let isMine=p.user===currentUser.user; let winner=p.opts.reduce((a,b)=>a.votes.length>=b.votes.length?a:b); return '<div class="poll-card"><div style="display:flex;gap:10px;align-items:center;width:100%">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+p.name+'</b><br><small>'+new Date(p.time).toLocaleString()+'</small></div><span class="cat-pill" style="background:#8e44ad">📊 POLL</span></div><h3 style="margin:8px 0">'+p.q+'</h3>'+p.opts.map((o,i)=>{ let pct=total===0?0:Math.round(o.votes.length/total*100); return '<button class="poll-opt" onclick="votePoll(\''+p.id+'\','+i+')"><div class="bar" style="width:'+pct+'%"></div><span>'+o.text+' - '+o.votes.length+' votes ('+pct+'%) '+(o===winner&&total>0?'👑':'')+'</span></button>'; }).join('')+'<p style="font-size:13px;color:#666">🗳️ '+total+' Total Votes • '+(voted?'✅ You voted':'Tap an option to vote!')+'</p><div class="post-actions"><button class="small-btn purple" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\'📊 SOKOTOP Poll: \'+p.q+\' - Vote on SOKOTOP!\'))">📲 Share Poll</button>'+(isMine?'<button class="small-btn red" onclick="deletePoll(\''+p.id+'\')">🗑️ Delete</button>':'')+'</div></div>'; }).join('') || '<p style="text-align:center;color:#888">No polls yet. Create first poll - Who is Best in Kitui?</p>'; }
-// REQUESTS
 function getRequests(){ return JSON.parse(localStorage.getItem('sokotop_requests')||'[]'); }
 function saveRequests(r){ localStorage.setItem('sokotop_requests', JSON.stringify(r)); }
 let reqFilter='ALL';
@@ -232,7 +251,7 @@ function commentPost(id){ let txt=prompt('Write comment:'); if(!txt) return; let
 function sharePost(id){ let posts=getPosts(); let p=posts.find(x=>x.id===id); window.open('https://wa.me/?text='+encodeURIComponent('🔥 SOKOTOP - '+p.name+': '+p.text)); }
 function editPost(id){ let posts=getPosts(); let p=posts.find(x=>x.id===id); let nt=prompt('Edit post:', p.text); if(nt===null) return; p.text=nt; savePosts(posts); renderFeed(); renderMe(); }
 function deletePost(id){ if(!confirm('Delete?')) return; savePosts(getPosts().filter(x=>x.id!==id)); renderFeed(); renderMe(); }
-function quickPost(){ let t=document.getElementById('postText2').value; createPost(t,''); document.getElementById('postText2').value=''; goSection('home', document.querySelector('.bottom-nav div')); }
+function quickPost(){ let t=document.getElementById('postText2').value; createPost(t,''); document.getElementById('postText2').value=''; goSection('home', document.querySelector('.top-nav div'),'top'); }
 document.getElementById('postFile').addEventListener('change', function(){ let file=this.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=e=>{ document.getElementById('postPreview').innerHTML = file.type.startsWith('video') ? '<video src="'+e.target.result+'" controls></video>' : '<img src="'+e.target.result+'">'; document.getElementById('postPreview').dataset.url=e.target.result; }; reader.readAsDataURL(file); });
 document.getElementById('btnCreatePost').onclick=()=>{ let text=document.getElementById('postText').value; let url=document.getElementById('postPreview').dataset.url; let media=url?(url.startsWith('data:video')?'<video src="'+url+'" controls></video>':'<img src="'+url+'">'):''; createPost(text, media); document.getElementById('postText').value=''; document.getElementById('postPreview').innerHTML=''; document.getElementById('postPreview').dataset.url=''; };
 function renderFriends(){ let users=getUsers(); let q=(document.getElementById('searchFriend')?.value||'').toLowerCase(); let myFriends=(currentUser.friends||[]).filter(f=>!(currentUser.blocked||[]).includes(f)); document.getElementById('friendsList').innerHTML = '<h3>My Friends ('+myFriends.length+')</h3>' + (myFriends.map(f=>{ let u=users.find(x=>x.user===f); if(!u) return ''; return '<div class="friend-card">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+u.name+'</b><br><small>@'+u.user+'</small></div><button class="small-btn" onclick="openChat(\''+u.user+'\')">💬 Chat</button><button class="small-btn gray" onclick="unfriend(\''+u.user+'\')">❌</button><button class="small-btn red" onclick="blockFriend(\''+u.user+'\')">🚫</button></div>'; }).join('') || '<p>No friends.</p>'); let blocked=currentUser.blocked||[]; document.getElementById('blockedList').innerHTML = blocked.length===0?'<p>No blocked.</p>':blocked.map(f=>{ let u=users.find(x=>x.user===f)||{name:f,user:f}; return '<div class="friend-card">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+u.name+'</b><br><small>@'+u.user+'</small></div><button class="small-btn green" onclick="unblockFriend(\''+u.user+'\')">Unblock</button></div>'; }).join(''); let suggested=users.filter(u=>u.user!==currentUser.user && !myFriends.includes(u.user) && !blocked.includes(u.user) && (u.name.toLowerCase().includes(q)||u.user.includes(q))); if(suggested.length===0 && !q){ suggested=[{name:'SOKOTOP Official',user:'sokotop',phone:''},{name:'Kitui News',user:'kitui_news',phone:''},{name:'DJ Kalondu',user:'dj_kalondu',phone:''}]; } document.getElementById('suggestedList').innerHTML = suggested.map(u=>'<div class="friend-card">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+u.name+'</b><br><small>@'+u.user+'</small></div><button class="small-btn" onclick="addFriend(\''+u.user+'\')">+ Add</button></div>').join(''); }
@@ -242,7 +261,7 @@ function blockFriend(user){ if(user===currentUser.user) return; if(!confirm('BLO
 function unblockFriend(user){ currentUser.blocked=(currentUser.blocked||[]).filter(f=>f!==user); syncUser(); renderFriends(); renderFeed(); renderRequests(); renderPolls(); renderReels(); }
 let activeChat=null;
 function renderChatFriends(){ let users=getUsers(); let friends=(currentUser.friends||[]).filter(f=>!(currentUser.blocked||[]).includes(f)); if(friends.length===0){ document.getElementById('chatFriends').innerHTML='<p>No friends yet.</p>'; return; } document.getElementById('chatFriends').innerHTML = friends.map(f=>{ let u=users.find(x=>x.user===f)||{name:f,user:f}; return '<div class="chat-card" onclick="openChat(\''+u.user+'\')">'+getAvatarHTML(u)+'<div style="flex:1"><b>'+u.name+'</b><br><small>Tap to chat →</small></div><button class="small-btn red" onclick="event.stopPropagation();blockFriend(\''+u.user+'\')">🚫</button></div>'; }).join(''); }
-function openChat(user){ if((currentUser.blocked||[]).includes(user)){ alert('Blocked. Unblock first.'); return; } activeChat=user; let users=getUsers(); let u=users.find(x=>x.user===user)||{name:user}; document.getElementById('chatWindow').style.display='block'; document.getElementById('chatWith').innerText='Chat with '+u.name; goSection('chat', document.querySelectorAll('.bottom-nav div')[6]); renderMessages(); }
+function openChat(user){ if((currentUser.blocked||[]).includes(user)){ alert('Blocked. Unblock first.'); return; } activeChat=user; let users=getUsers(); let u=users.find(x=>x.user===user)||{name:user}; document.getElementById('chatWindow').style.display='block'; document.getElementById('chatWith').innerText='Chat with '+u.name; goSection('chat', document.querySelectorAll('.bottom-nav div')[3],'bottom'); renderMessages(); }
 function getChats(){ return JSON.parse(localStorage.getItem('sokotop_chats')||'{}'); }
 function renderMessages(){ if(!activeChat) return; let chats=getChats(); let key=[currentUser.user, activeChat].sort().join('_'); let msgs=chats[key]||[]; document.getElementById('chatMessages').innerHTML = msgs.map(m=>'<div class="msg '+(m.from===currentUser.user?'me':'other')+'"><b>'+(m.from===currentUser.user?'You':m.fromName)+':</b> '+m.text+'</div>').join('') || '<p>Say Hi!</p>'; }
 function sendChat(){ let text=document.getElementById('chatInput').value.trim(); if(!text||!activeChat) return; let chats=getChats(); let key=[currentUser.user, activeChat].sort().join('_'); chats[key]=chats[key]||[]; chats[key].push({from:currentUser.user,fromName:currentUser.name,text:text,time:Date.now()}); localStorage.setItem('sokotop_chats', JSON.stringify(chats)); document.getElementById('chatInput').value=''; renderMessages(); }
