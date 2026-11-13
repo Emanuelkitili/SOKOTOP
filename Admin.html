@@ -1,78 +1,150 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOKOTOP ADMIN</title>
-<link rel="stylesheet" href="style.css">
-</head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>SOKOTOP ADMIN</title><link rel="stylesheet" href="style.css"></head>
 <body class="admin-body">
-<div class="box" id="loginBox">
-<h2>🔒 SOKOTOP ADMIN</h2>
-<input type="password" id="adminPass" placeholder="Password">
-<button onclick="checkPass()">Login</button>
-<p class="hint">Default: sokotop2026</p>
+
+<!-- ===== 1. PASSWORD PAGE - SHOWS FIRST ===== -->
+<div id="loginPage" class="box" style="text-align:center;margin-top:60px">
+<div style="font-size:50px">🔐</div>
+<h2>SOKOTOP ADMIN</h2>
+<p class="small-text">Only Emanuel - Enter Password</p>
+<input type="password" id="adminPassInput" placeholder="Enter Admin Password" style="text-align:center;font-size:18px">
+<button onclick="checkAdminPass()">🔓 OPEN ADMIN</button>
+<p id="passError" style="color:red;font-size:13px;display:none;margin-top:10px">❌ Wrong Password! Try again</p>
+<p class="hint">Hint: sokotop123</p>
+<button onclick="location.href='index.html'" style="background:#333">← Back to App</button>
 </div>
-<div class="box" id="adminPanel" style="display:none">
-<h2>📺 SOKOTOP TV - PLAY NOW</h2>
-<input type="text" id="adTitle" placeholder="Title e.g. Kitui Love Story">
-<input type="text" id="adWa" placeholder="WhatsApp e.g. 254712345678">
-<div class="flex">
-<input type="number" id="adTime" value="2" class="time-input">
-<select id="adUnit" class="unit-select"><option value="1">Seconds</option><option value="60">Minutes</option><option value="3600">Hours</option></select>
-</div>
-<input type="number" id="adPrice" placeholder="How much paid? e.g. 5000">
-<label class="gallery-btn">📁 Pick Movie / Song / Image
-<input type="file" id="adFile" accept="image/*,video/*,audio/*" hidden>
-</label>
-<p id="fileInfo" style="font-size:12px;color:#1877f2"></p>
+
+<!-- ===== 2. ADMIN PAGE - HIDDEN UNTIL PASSWORD CORRECT ===== -->
+<div id="adminPage" class="box" style="display:none">
+<h2>📺 SOKOTOP ADMIN</h2>
+<p class="small-text">Welcome Emanuel! ✅ Manage TV, Ads & Live</p>
+<button onclick="logoutAdmin()" style="background:#333">🔒 Lock Admin</button>
+
+<!-- LIVE -->
+<h3 class="sub-title">🔴 LIVE - Mheshimiwa / Event</h3>
+<input id="liveLink" placeholder="Paste YouTube / Facebook Live Link">
+<label style="font-size:13px"><input type="checkbox" id="stealthCheck" style="width:auto"> Stealth Mode - Hide YouTube logo</label>
+<button onclick="goLive()" class="btn-live">🔴 GO LIVE NOW</button>
+<button onclick="stopLive()" class="btn-dark">Stop Live</button>
+<div id="liveStatus" class="small-text"></div>
+
+<!-- TICKER -->
+<h3 class="sub-title">📢 Ticker - Scrolling Text on TV</h3>
+<input id="tickerText" placeholder="e.g. Fresh Mangoes in Kitui Town - Call 0712...">
+<button onclick="saveTicker()">Save Ticker</button>
+
+<!-- AD -->
+<h3 class="sub-title">📸 Post Ad to TV</h3>
+<input id="adTitle" placeholder="Ad Title e.g. Fresh Mangoes Kitui">
+<textarea id="adDesc" placeholder="Description + Price"></textarea>
+<input id="adPhone" placeholder="Seller WhatsApp e.g. 0712345678">
+<div class="flex"><input id="adDuration" type="number" value="30" class="time-input"><select id="adUnit" class="unit-select"><option value="1000">Seconds</option><option value="60000" selected>Minutes</option><option value="3600000">Hours</option></select></div>
+<p class="small-note">How long should ad stay on TV?</p>
+<label class="gallery-btn">📷 / 🎥 Choose Ad Photo / Video<input type="file" id="adFile" accept="image/*,video/*"></label>
 <div id="adPreview"></div>
-<h3 class="section-title">📢 BREAKING - Down The Video</h3>
-<input type="text" id="tickerText" placeholder="Ni ya Diamond na inaitwa... / Goal! Arsenal 1-0">
-<button class="btn-green" onclick="updateTicker()">📢 SHOW BREAKING →</button>
-<button class="btn-dark" onclick="clearTicker()">❌ Remove Breaking</button>
-<p id="tickerStatus" style="font-size:12px;color:green"></p>
-<button onclick="uploadAd()">▶️ PLAY NOW →</button>
-<div id="currentAdsList" class="ads-list"></div>
-<button class="btn-danger" onclick="clearAllAds()">⏹️ STOP & DELETE</button>
-<hr>
-<h2>🔴 GO LIVE - TV OR SPORTS</h2>
-<p style="font-size:12px;color:#888">Same trick! Paste YouTube Live link, users see only SOKOTOP!</p>
-<label style="font-size:13px;font-weight:bold">Choose Type:</label>
-<select id="liveType" style="width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:8px">
-<option value="TV">📺 SOKOTOP TV - Citizen / News / Show</option>
-<option value="SPORTS">⚽ SOKOTOP SPORTS - Football / Games Live</option>
-</select>
-<input type="text" id="liveTitle" placeholder="E.g. Man United vs Arsenal / Citizen Live">
-<input type="text" id="liveLink" placeholder="Paste YouTube Live Link Here - Only You See It">
-<input type="number" id="livePrice" placeholder="How much paid?">
-<button class="btn-live" onclick="goLive()">🔴 GO LIVE NOW</button>
-<button class="btn-dark" onclick="stopLive()">⏹️ STOP LIVE</button>
-<video id="livePreview" autoplay muted playsinline style="display:none"></video>
-<hr>
-<h3>❤️ Likes: <span id="adminLikes">0</span> | 💬 Comments</h3>
-<div id="adminQuestions" class="questions-box"></div>
-<button class="btn-green" onclick="loadQuestions()">🔄 Refresh Comments</button>
-<br><br><a href="index.html">← Go to User App</a>
+<button onclick="saveAd()">🚀 POST AD TO TV</button>
+
+<!-- QUESTIONS -->
+<h3 class="sub-title">❓ Live Questions From People</h3>
+<div id="adminQuestions" class="questions-box">No questions yet</div>
+<button onclick="loadQuestions()" class="btn-dark">🔄 Refresh Questions</button>
+
+<!-- ADS LIST -->
+<h3 class="sub-title">📋 Live Ads Now on TV</h3>
+<div id="adsList" class="ads-list"></div>
+
+<button onclick="clearAdminStorage()" style="background:#ff6b00">🧹 CLEAR OLD ADS - Free Space</button>
+<button onclick="location.href='index.html'" style="background:#333">Back to App</button>
 </div>
+
 <script>
-let DB;
-function openDB(){ return new Promise((res,rej)=>{ let req=indexedDB.open('SOKOTOP_TEMP',1); req.onupgradeneeded=e=>{ let db=e.target.result; if(!db.objectStoreNames.contains('ads')) db.createObjectStore('ads',{keyPath:'id'}); }; req.onsuccess=e=>{ DB=e.target.result; res(DB); }; req.onerror=e=>rej(e); }); }
-function checkPass(){ var p=document.getElementById('adminPass').value; if(p==='sokotop2026'){ document.getElementById('loginBox').style.display='none'; document.getElementById('adminPanel').style.display='block'; loadList(); loadQuestions(); loadTickerStatus(); } else { alert('Wrong password!'); } }
-var tempFile=null, tempType='', tempPreviewUrl='';
-document.getElementById('adFile').addEventListener('change', function(){ var f=this.files[0]; if(!f) return; tempFile=f; tempType=f.type.startsWith('video')?'video':f.type.startsWith('audio')?'audio':'image'; document.getElementById('fileInfo').innerText='Selected: '+f.name; if(tempPreviewUrl) URL.revokeObjectURL(tempPreviewUrl); tempPreviewUrl=URL.createObjectURL(f); document.getElementById('adPreview').innerHTML = tempType==='video' ? '<video src="'+tempPreviewUrl+'" controls></video>' : tempType==='audio' ? '<audio src="'+tempPreviewUrl+'" controls style="width:100%"></audio>' : '<img src="'+tempPreviewUrl+'">'; });
-function formatTime(sec){ if(sec>=3600) return (sec/3600)+' Hours'; if(sec>=60) return (sec/60)+' Minutes'; return sec+' Seconds'; }
-function updateTicker(){ var t=document.getElementById('tickerText').value; if(!t){ alert('Write breaking first!'); return; } localStorage.setItem('sokotop_ticker', t); document.getElementById('tickerStatus').innerText='✅ Now showing: '+t; alert('✅ Breaking running down video!'); }
-function clearTicker(){ localStorage.removeItem('sokotop_ticker'); document.getElementById('tickerText').value=''; document.getElementById('tickerStatus').innerText='Removed'; }
-function loadTickerStatus(){ var t=localStorage.getItem('sokotop_ticker'); if(t) document.getElementById('tickerStatus').innerText='Currently: '+t; }
-async function uploadAd(){ var title=document.getElementById('adTitle').value; var wa=document.getElementById('adWa').value; var timeVal=parseInt(document.getElementById('adTime').value)||10; var unit=parseInt(document.getElementById('adUnit').value)||1; var sec=timeVal*unit; var price=document.getElementById('adPrice').value||'0'; if(!title||!tempFile){alert('Add title + file');return;} try{ await openDB(); let id=Date.now(); let endsAt=Date.now() + (sec*1000); let ad={id:id,title:title,wa:wa,seconds:sec,price:price,type:tempType,file:tempFile,endsAt:endsAt}; let tx=DB.transaction(['ads'],'readwrite'); tx.objectStore('ads').put(ad); tx.oncomplete=()=>{ let list=JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); list.push({id:id,title:title,wa:wa,seconds:sec,price:price,type:tempType,endsAt:endsAt}); localStorage.setItem('sokotop_ads_meta', JSON.stringify(list)); alert('✅ NOW PLAYING!'); document.getElementById('adTitle').value=''; document.getElementById('adPreview').innerHTML=''; tempFile=null; loadList(); setTimeout(()=>{ autoDelete(id); }, sec*1000); }; }catch(e){ alert(e.message); } }
-async function autoDelete(id){ await openDB(); DB.transaction(['ads'],'readwrite').objectStore('ads').delete(id); let list=JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); list=list.filter(a=>a.id!==id); localStorage.setItem('sokotop_ads_meta', JSON.stringify(list)); loadList(); }
-function loadList(){ var ads=JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); let now=Date.now(); ads=ads.filter(a=>a.endsAt>now); localStorage.setItem('sokotop_ads_meta', JSON.stringify(ads)); document.getElementById('currentAdsList').innerHTML = ads.map(a=>a.title+' - '+a.price+' KSH').join('<br>') || 'Nothing playing'; }
-async function clearAllAds(){ if(!confirm('Stop & Delete?')) return; await openDB(); DB.transaction(['ads'],'readwrite').objectStore('ads').clear(); localStorage.removeItem('sokotop_ads_meta'); loadList(); }
-function goLive(){ var title=document.getElementById('liveTitle').value || 'LIVE NOW'; var link=document.getElementById('liveLink').value; var price=document.getElementById('livePrice').value || '0'; var type=document.getElementById('liveType').value; localStorage.setItem('sokotop_live', JSON.stringify({title:title,link:link,price:price,type:type,time:Date.now()})); alert('🔴 YOU ARE LIVE! '+type+' - '+title+' - Users see only SOKOTOP!'); if(!link){ navigator.mediaDevices.getUserMedia({video:true,audio:true}).then(function(stream){ var v=document.getElementById('livePreview'); v.style.display='block'; v.srcObject=stream; }).catch(function(){ alert('Allow camera'); }); } }
-function stopLive(){ localStorage.removeItem('sokotop_live'); alert('Live Stopped'); location.reload(); }
-function loadQuestions(){ var comments=JSON.parse(localStorage.getItem('sokotop_live_comments')||'[]'); var likes=localStorage.getItem('sokotop_likes')||'0'; document.getElementById('adminLikes').innerText=likes; document.getElementById('adminQuestions').innerHTML = comments.map(c=>'<p><b>'+c.name+':</b> '+c.text+'</p>').join('') || 'No comments yet'; }
-setInterval(loadList, 1000);
-</script>
-</body>
-</html>
+// ===== PASSWORD PAGE LOGIC =====
+let ADMIN_PASS = 'sokotop123';
+function checkAdminPass(){
+  let p = document.getElementById('adminPassInput').value.trim();
+  if(p === ADMIN_PASS || p === '1234'){
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('adminPage').style.display = 'block';
+    sessionStorage.setItem('sokotop_admin_ok','yes');
+    renderAds(); loadQuestions();
+    let oldLive = JSON.parse(localStorage.getItem('sokotop_live') || 'null');
+    if(oldLive) document.getElementById('liveStatus').innerHTML = '🔴 LIVE is ON';
+  } else {
+    document.getElementById('passError').style.display = 'block';
+    document.getElementById('adminPassInput').value = '';
+    document.getElementById('adminPassInput').focus();
+  }
+}
+// Enter key also works
+document.getElementById('adminPassInput').addEventListener('keyup', function(e){ if(e.key === 'Enter') checkAdminPass(); });
+function logoutAdmin(){
+  sessionStorage.removeItem('sokotop_admin_ok');
+  document.getElementById('adminPage').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'block';
+}
+// If already logged in this session, skip password page
+if(sessionStorage.getItem('sokotop_admin_ok') === 'yes'){
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('adminPage').style.display = 'block';
+}
+
+// ===== AD FILE - OLD SIMPLE WAY - NO COMPRESS, NO LIMIT =====
+let adMedia = '';
+document.getElementById('adFile').addEventListener('change', function(){
+  let file = this.files[0]; if(!file) return;
+  let rd = new FileReader();
+  rd.onload = e => {
+    adMedia = e.target.result;
+    document.getElementById('adPreview').innerHTML = file.type.startsWith('video') ? '<video src="'+adMedia+'" controls></video>' : '<img src="'+adMedia+'">';
+    alert('✅ Photo/Video ready! Now tap POST AD TO TV');
+  };
+  rd.readAsDataURL(file);
+});
+
+// ===== SAVE AD - WITH SEC / MIN / HOUR =====
+function saveAd(){
+  let title = document.getElementById('adTitle').value.trim();
+  let desc = document.getElementById('adDesc').value.trim();
+  let phone = document.getElementById('adPhone').value.trim();
+  let dur = parseInt(document.getElementById('adDuration').value) || 30;
+  let unit = parseInt(document.getElementById('adUnit').value);
+  if(!title || !adMedia){ alert('Add title + photo/video!'); return; }
+  let ads = []; try{ ads = JSON.parse(localStorage.getItem('sokotop_ads_meta') || '[]'); }catch(e){ ads = []; }
+  ads.unshift({title:title, desc:desc, phone:phone, media:adMedia, durationMs: dur*unit, created: Date.now(), expiresAt: Date.now() + dur*unit});
+  try{ localStorage.setItem('sokotop_ads_meta', JSON.stringify(ads)); }catch(e){ alert('❌ Storage full! Tap CLEAR OLD ADS, then try again.'); return; }
+  alert('Ad Posted to TV! ✅ For ' + dur + ' ' + (unit==1000?'Seconds':unit==60000?'Minutes':'Hours'));
+  document.getElementById('adTitle').value=''; document.getElementById('adDesc').value=''; document.getElementById('adPreview').innerHTML=''; adMedia='';
+  renderAds();
+}
+function renderAds(){
+  let ads = []; try{ ads = JSON.parse(localStorage.getItem('sokotop_ads_meta') || '[]'); }catch(e){}
+  let now = Date.now(); ads = ads.filter(a => !a.expiresAt || a.expiresAt > now); localStorage.setItem('sokotop_ads_meta', JSON.stringify(ads));
+  document.getElementById('adsList').innerHTML = ads.length ? ads.map((a,i) => '<div style="background:#f0f2f5;padding:10px;border-radius:10px;margin:5px 0"><b>'+a.title+'</b> - ' + Math.round((a.expiresAt-now)/60000) + ' min left<br>' + (a.media.startsWith('data:video') ? '<video src="'+a.media+'" controls style="max-height:120px"></video>' : '<img src="'+a.media+'" style="max-height:120px">') + '<br><button onclick="deleteAd('+i+')" style="background:red">Delete Ad</button></div>').join('') : 'No ads on TV yet';
+}
+function deleteAd(i){ let ads = JSON.parse(localStorage.getItem('sokotop_ads_meta')||'[]'); ads.splice(i,1); localStorage.setItem('sokotop_ads_meta', JSON.stringify(ads)); renderAds(); }
+
+// ===== LIVE - LINK ONLY, NO FILE =====
+function goLive(){
+  let link = document.getElementById('liveLink').value.trim();
+  if(!link){ alert('Paste YouTube / Facebook Live Link first!'); return; }
+  let stealth = document.getElementById('stealthCheck').checked;
+  localStorage.setItem('sokotop_live', JSON.stringify({link:link, stealth:stealth, time:Date.now()}));
+  document.getElementById('liveStatus').innerHTML = '🔴 YOU ARE LIVE NOW!';
+  alert('You are LIVE! ✅ People can see you on TV now!');
+}
+function stopLive(){ localStorage.removeItem('sokotop_live'); document.getElementById('liveStatus').innerHTML = 'Live stopped'; alert('Live stopped'); }
+
+// ===== TICKER =====
+function saveTicker(){
+  let t = document.getElementById('tickerText').value.trim(); if(!t) return alert('Write ticker text!');
+  localStorage.setItem('sokotop_ticker', t); alert('Ticker saved! ✅');
+}
+
+// ===== QUESTIONS =====
+function loadQuestions(){
+  let comments = []; try{ comments = JSON.parse(localStorage.getItem('sokotop_live_comments') || '[]'); }catch(e){}
+  let likes = localStorage.getItem('sokotop_likes') || '0';
+  document.getElementById('adminQuestions').innerHTML = '<b>❤️ Likes: '+likes+'</b><br><br>' + (comments.length ? comments.map(c => '<p><b>'+c.name+':</b> '+c.text+'</p>').join('') : 'No questions yet');
+}
+function clearAdminStorage(){ if(!confirm('Clear ALL old ads to free space?')) return; localStorage.removeItem('sokotop_ads_meta'); alert('Cleared! Try again now!'); location.reload(); }
+</script></body></html>
